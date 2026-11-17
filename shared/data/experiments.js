@@ -1,4 +1,4 @@
-const experiments = [
+export const experiments = [
   {
     id: 'circuit',
     subject: 'Physics',
@@ -6,8 +6,14 @@ const experiments = [
     description: 'Explore how voltage, resistance and current work together.',
     level: 'Beginner',
     time: '10 min',
+    iconName: 'Zap',
+    color: 'blue',
     available: true,
-    objectives: ['Apply Ohm’s Law', 'Identify circuit components', 'Observe current flow'],
+    objectives: [
+      'Apply Ohm’s Law',
+      'Identify circuit components',
+      'Observe current flow',
+    ],
   },
   {
     id: 'reactions',
@@ -16,8 +22,13 @@ const experiments = [
     description: 'Explore how substances combine and form new products.',
     level: 'Intermediate',
     time: '15 min',
+    iconName: 'FlaskConical',
+    color: 'purple',
     available: false,
-    objectives: ['Identify reactants', 'Observe reaction signs'],
+    objectives: [
+      'Identify reactants',
+      'Observe reaction signs',
+    ],
   },
   {
     id: 'body',
@@ -26,8 +37,13 @@ const experiments = [
     description: 'Discover how major organs work together.',
     level: 'Beginner',
     time: '12 min',
+    iconName: 'Beaker',
+    color: 'green',
     available: false,
-    objectives: ['Map major organs', 'Understand circulation'],
+    objectives: [
+      'Map major organs',
+      'Understand circulation',
+    ],
   },
   {
     id: 'reflection',
@@ -36,10 +52,14 @@ const experiments = [
     description: 'Experiment with angles and mirrors to understand reflected light.',
     level: 'Intermediate',
     time: '12 min',
+    iconName: 'Sparkles',
+    color: 'orange',
     available: false,
-    objectives: ['Measure angles', 'Test reflection'],
+    objectives: [
+      'Measure angles',
+      'Test reflection',
+    ],
   },
 ]
 
 export default experiments
-export { experiments }
