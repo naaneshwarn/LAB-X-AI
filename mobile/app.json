@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "LabXAI",
+    "slug": "labxai-mobile",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "labxai",
+    "userInterfaceStyle": "light",
+    "plugins": ["expo-router"],
+    "android": {
+      "package": "com.labxai.mobile"
+    },
+    "ios": {
+      "bundleIdentifier": "com.labxai.mobile"
+    }
+  }
+}
