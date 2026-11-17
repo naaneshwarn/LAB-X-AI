@@ -30,6 +30,8 @@ shared/
     └── circuits/        # Pure circuit calculations and validation
 ```
 
+The builder model is defined in `shared/simulations/circuits/circuitTypes.js`. It is platform-neutral and stores stable component IDs, positions, rotation, properties, and calculated terminal positions. Builder connections use `{ id, from, to }` endpoint records and are kept separate from visual rendering. Web SVG wires and native mobile wires consume the same connection shape; neither performs electrical validation yet.
+
 The existing web UI is still composed in `frontend/src/app/App.jsx`. Future extractions should move one feature at a time into `features/`, `components/`, and `services/`, preserving the current behavior after each move.
 
 ## Shared circuit model

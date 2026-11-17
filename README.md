@@ -23,6 +23,8 @@ The repository currently contains a responsive web frontend prototype and an ini
   - The bulb glows only when the circuit is active.
 - Animated current-flow feedback when the circuit is active.
 - Reset experiment control.
+- Stage 1 Interactive Circuit Builder mode with a component toolbox, grid workspace, drag/tap placement, selection, movement, deletion, rotation, and reset.
+- Stage 2 terminal-based wire connections with responsive SVG/native wire rendering, duplicate/self-connection guards, and connection cleanup when components are deleted.
 - Mock AI science assistant with suggested questions.
 - English/Kannada language selector UI. Full Kannada translation is not implemented yet.
 - Mobile, tablet, and desktop layouts.
@@ -42,6 +44,8 @@ The repository currently contains a responsive web frontend prototype and an ini
 - Real AI assistant integration.
 - Full Kannada interface translation.
 - Quizzes and additional functional experiments.
+- Electrical validation engine for user-built circuit topology.
+- Advanced electrical simulation, including current flow derived from user-built circuit topology.
 
 The mobile prototype is runnable with Expo and includes onboarding, dashboard, experiment library, profile/settings, assistant chat, and the Basic Electric Circuit lab. It has not yet been tested on physical Android or iOS devices.
 
