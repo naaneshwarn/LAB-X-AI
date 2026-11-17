@@ -1,177 +1,199 @@
-# LabXAI – AI-Powered Interactive Virtual Science Laboratory
+# LabXAI
 
 **Ask. Explore. Experiment. Understand.**
 
-LabXAI is an AI-powered interactive science learning platform designed to make science education more engaging, accessible, and practical. It allows students to explore scientific concepts through virtual experiments, interactive simulations, AI-powered explanations, and quizzes.
+LabXAI is an interactive science learning platform for Classes 6–10. The frontend helps students explore virtual experiments, change scientific variables, observe results, and ask questions in a safe learning environment.
 
-The platform aims to support classroom learning by providing students with a safe virtual environment where they can experiment, observe results, ask questions, and understand scientific concepts.
+## Current status
 
-## 🎯 Project Objectives
+The repository currently contains the first frontend prototype. The backend, database, and real AI service are not connected yet.
 
-- Make science learning interactive and engaging.
-- Help students understand scientific concepts through virtual experiments.
-- Provide AI-powered explanations in simple language.
-- Support English and Kannada learning.
-- Encourage curiosity, experimentation, and practical understanding.
-- Provide a safe virtual environment for exploring science.
+### Implemented
 
-## ✨ Key Features
+- Responsive landing page with LabXAI branding and feature overview.
+- Student dashboard with demo progress, metrics, weekly activity, and continue-learning card.
+- Experiment library with search, subject filters, difficulty filters, and responsive experiment cards.
+- Basic Electric Circuit virtual laboratory.
+- SVG circuit diagram with battery, bulb, switch, resistor, and connecting wires.
+- Switch ON/OFF interaction and circuit status feedback.
+- Battery voltage and resistance sliders.
+- Deterministic Ohm's Law calculation:
+  - `I = V / R`
+  - Current is `0 A` when the switch is open.
+  - The bulb glows only when the circuit is active.
+- Animated current-flow feedback when the circuit is active.
+- Reset experiment control.
+- Mock AI science assistant with suggested questions.
+- English/Kannada language selector UI. Full Kannada translation is not implemented yet.
+- Mobile, tablet, and desktop layouts.
 
-- **Interactive Virtual Laboratory:** Perform science experiments in a virtual environment.
-- **AI Science Assistant:** Ask questions and receive easy-to-understand explanations.
-- **Visual Simulations:** Observe real-time changes when experiment components are modified.
-- **Multilingual Learning:** Support English and Kannada explanations.
-- **Interactive Quizzes:** Test understanding through topic-based questions.
-- **Learning Progress:** Track completed experiments and quiz performance.
+### Demo-only behavior
 
-## ⚡ Initial Experiment: Basic Electric Circuit
+- Dashboard values are sample data and are not persisted.
+- The AI assistant uses local mock responses. It does not call an AI backend.
+- Chemical Reactions, Human Body Systems, and Light and Reflection are marked as coming soon.
+- Scientific calculations are performed in the browser and do not depend on the AI assistant.
 
-The initial prototype focuses on an interactive basic electric circuit experiment.
-
-Students will be able to:
-- Explore a battery, bulb, switch, resistor, and connecting wires.
-- Connect circuit components.
-- Turn the switch ON and OFF.
-- Observe whether the bulb lights up.
-- Change voltage and resistance values.
-- Understand the relationship between voltage, resistance, and current.
-- Observe calculated results in real time.
-
-### Scientific Calculation
-
-The simulation uses Ohm's Law:
-
-**V = I × R**
-
-Where:
-- V = Voltage (Volts)
-- I = Current (Amperes)
-- R = Resistance (Ohms)
-
-Scientific calculations are performed using deterministic JavaScript logic rather than relying on the AI model.
-
-## 🛠️ Technology Stack
+## Technology stack
 
 | Technology | Purpose |
 |---|---|
-| React.js | Frontend development |
-| Vite | Development environment |
-| Tailwind CSS | User interface styling |
-| JavaScript | Interactive simulation and calculations |
-| SVG | Circuit diagrams and components |
-| CSS Animations | Visual effects and animations |
-| Python | Backend development |
-| FastAPI | Backend API services |
-| SQLite | Initial database |
-| Ollama | Local AI model runtime |
+| React | UI and application state |
+| Vite | Development server and production bundling |
+| JavaScript / JSX | Application and simulation logic |
+| CSS | Responsive layout, styling, and animations |
+| SVG | Circuit diagram and visual simulation |
+| Lucide React | Interface icons |
+| Oxlint | JavaScript linting |
 
-## 🏗️ Project Architecture
-
-1. **Frontend:** Provides the landing page, student dashboard, experiment selection, and virtual laboratory.
-2. **Simulation Engine:** Handles component interactions, circuit states, scientific calculations, and visual feedback.
-3. **Backend:** Receives structured experiment data and provides API services.
-4. **AI Assistant:** Uses experiment context to explain scientific observations and answer student questions.
-5. **Database:** Stores relevant experiment and learning progress information.
-
-## 👨‍💻 Frontend & Simulation Responsibilities
-
-The frontend and interactive simulation development includes:
-
-- Setting up React, Vite, and Tailwind CSS.
-- Building the landing page and student dashboard.
-- Developing the experiment selection interface.
-- Creating the interactive virtual laboratory.
-- Designing circuit components using JavaScript and SVG.
-- Implementing component placement and switch controls.
-- Calculating scientific values using JavaScript.
-- Providing real-time visual feedback.
-- Connecting the frontend with backend APIs.
-- Sending structured experiment states and observations to the backend.
-
-## 🚀 Getting Started
+## Run the frontend
 
 ### Prerequisites
 
-Install the following tools:
-
-- Node.js (LTS version)
+- Node.js LTS
 - npm
 - Git
-- Visual Studio Code
 
-### Installation
+### Install and start
 
-**1. Clone the repository**
+From the repository root:
 
-```bash
-git clone https://github.com/godjanith/LabXAI.git
-```
-
-**2. Navigate to the project folder**
-
-```bash
-cd LabXAI
-```
-
-**3. Install dependencies**
-
-```bash
+```powershell
+cd frontend
 npm install
-```
-
-**4. Start the development server**
-
-```bash
 npm run dev
 ```
 
-Open the local URL displayed in your terminal to access the application.
-
-## 📁 Planned Frontend Structure
+Open the URL printed by Vite, usually:
 
 ```text
-src/
-├── components/
-│   ├── Navbar.jsx
-│   ├── Footer.jsx
-│   └── ExperimentCard.jsx
-│
-├── pages/
-│   ├── Home.jsx
-│   ├── Dashboard.jsx
-│   ├── Experiments.jsx
-│   └── VirtualLab.jsx
-│
-├── simulations/
-│   └── circuits/
-│       ├── CircuitLab.jsx
-│       ├── CircuitDiagram.jsx
-│       ├── Battery.jsx
-│       ├── Bulb.jsx
-│       ├── Switch.jsx
-│       ├── circuitLogic.js
-│       └── circuit.css
-│
-├── services/
-│   └── api.js
-│
-├── App.jsx
-└── main.jsx
+http://localhost:5173
 ```
 
-*This is the proposed structure and may evolve during development.*
+### Other commands
 
-## 🌱 Future Enhancements
+Run the linter:
 
-- More interactive physics and chemistry experiments.
-- Additional Indian language support.
-- Voice-based AI assistance.
-- Improved student progress tracking.
-- More advanced virtual laboratory simulations.
-- Teacher-oriented learning and monitoring features.
+```powershell
+cd frontend
+npm run lint
+```
 
-## 🎓 Vision
+Create a production build:
 
-Our vision is to make science learning more accessible, engaging, and experiential by combining interactive simulations with AI-powered explanations.
+```powershell
+cd frontend
+npm run build
+```
+
+Preview the production build locally:
+
+```powershell
+cd frontend
+npm run preview
+```
+
+## Project structure
+
+```text
+LAB-X-AI/
+├── README.md
+└── frontend/
+    ├── package.json       # Scripts and dependencies
+    ├── index.html         # Vite HTML entry point
+    ├── public/            # Static public assets
+    └── src/
+        ├── App.jsx        # Pages, reusable UI, and app navigation
+        ├── App.css        # Application styles and responsive layouts
+        ├── index.css      # Global styles and font setup
+        ├── main.jsx       # React entry point
+        └── assets/        # Image and starter assets
+```
+
+## Where to make future changes
+
+### Add a new page
+
+1. Add a page component in `frontend/src/App.jsx` or extract it into `frontend/src/pages/`.
+2. Add a page ID to the `page` state flow in `App`.
+3. Add a navigation button or CTA that calls `goTo('your-page-id')`.
+4. Add responsive styles in `frontend/src/App.css`.
+
+The current app uses lightweight client-side page state rather than a router. A routing library can be introduced when URL-based navigation is needed.
+
+### Add a new experiment
+
+1. Add an item to the `experiments` array in `frontend/src/App.jsx`.
+2. Provide an `id`, `subject`, `title`, `description`, `level`, `time`, `icon`, `color`, `available`, and `objectives`.
+3. Set `available: false` until the experiment has a working simulation.
+4. Create a dedicated simulation component when the experiment becomes functional.
+5. Add its calculations as pure JavaScript functions separate from visual components.
+
+### Extend the electric circuit simulation
+
+The circuit calculation helpers are currently near the top of `frontend/src/App.jsx`:
+
+- `calculateCurrent(voltage, resistance, isClosed, isComplete)`
+- `getCircuitObservation(current, isClosed)`
+
+When the simulation grows, move these functions and circuit state validation into:
+
+```text
+frontend/src/simulations/circuits/circuitLogic.js
+```
+
+Keep scientific calculations deterministic and testable. UI components should display results, not ask the AI service to calculate them.
+
+### Connect the AI assistant
+
+The current assistant is implemented in the `Assistant` component using local responses. Replace the response logic with a service module such as:
+
+```text
+frontend/src/services/api.js
+```
+
+The request should include experiment context such as voltage, resistance, switch state, current, and the selected language. Keep the local response as a visible fallback when the backend is unavailable, and clearly show connection state to students.
+
+### Add translations
+
+Move visible interface text into a translation object, for example:
+
+```text
+frontend/src/i18n/translations.js
+```
+
+Use the existing `language` state to select the active translation set. Scientific terms should be reviewed rather than translated automatically.
+
+## Scientific model
+
+The electric circuit is an idealized educational model:
+
+```text
+V = I × R
+I = V / R
+```
+
+Where:
+
+- `V` is voltage in volts.
+- `I` is current in amperes.
+- `R` is resistance in ohms.
+
+The current implementation assumes a complete circuit, ideal wires, and a single resistance value. It does not model battery internal resistance, bulb non-linear resistance, heat, or component failure.
+
+## Suggested next features
+
+- Extract the current single-file app into `components/`, `pages/`, `simulations/`, and `services/`.
+- Add automated tests for circuit calculations and input validation.
+- Add real experiment state and progress persistence.
+- Add backend API integration for the AI assistant.
+- Add reviewed Kannada translations.
+- Implement quizzes and learning milestones.
+- Add more interactive physics, chemistry, and biology experiments.
+- Add teacher and classroom monitoring features.
+
+## Vision
+
+Make science learning more accessible, engaging, and experiential by combining interactive simulations with clear AI-powered explanations.
 
 **LabXAI – Learn Science by Exploring, Experimenting, and Understanding.**
