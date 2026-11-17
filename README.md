@@ -136,56 +136,60 @@ The API base URL is configured through `mobile/.env` using `mobile/.env.example`
 ```text
 LAB-X-AI/
 ├── README.md
-└── frontend/
-    ├── package.json       # Scripts and dependencies
-    ├── index.html         # Vite HTML entry point
-    ├── public/            # Static public assets
-    └── src/
-        ├── App.jsx        # Pages, reusable UI, and app navigation
-        ├── App.css        # Application styles and responsive layouts
-        ├── index.css      # Global styles and font setup
-        ├── main.jsx       # React entry point
-        └── assets/        # Image and starter assets
-```
-
-The planned cross-platform structure is:
-
-```text
-LAB-X-AI/
-├── frontend/              # Existing React + Vite web application
-├── mobile/                # React Native + Expo mobile application
-│   ├── app/               # Expo Router screens and routes
-│   ├── components/        # Mobile-specific reusable UI
-│   ├── simulations/       # React Native simulations
-│   ├── services/          # Mobile API client
-│   ├── data/              # Demo mobile data
-│   ├── constants/
-│   ├── assets/
-│   ├── app.json
+├── frontend/              # React + Vite web application
 │   ├── package.json
-│   └── .env.example
-└── shared/                # Browser/mobile pure JavaScript modules
-    ├── circuitLogic.js
-    ├── experiments.js
-    └── translations.js
+│   ├── public/
+│   └── src/
+│       ├── app/
+│       ├── assets/
+│       ├── components/
+│       ├── features/
+│       ├── hooks/
+│       ├── main.jsx
+│       ├── services/
+│       ├── i18n/
+│       ├── styles/
+│       ├── utils/
+│       └── constants/
+├── mobile/                # React Native + Expo application
+│   ├── app/                # Expo Router routes
+│   │   ├── (tabs)/
+│   ├── components/
+│   ├── features/
+│   ├── hooks/
+│   ├── services/
+│   ├── assets/
+│   └── constants/
+├── shared/                # Platform-neutral data and scientific logic
+│   ├── simulations/
+│   │   └── circuits/circuitLogic.js
+│   ├── data/
+│   ├── i18n/
+│   ├── validation/
+│   ├── constants/
+│   └── utils/
+├── backend/               # Future FastAPI boundary; no implementation yet
+│   └── app/
+├── docs/                  # Architecture, API, simulation, and development docs
+└── tests/                 # Shared, web, and mobile test areas
 ```
 
-Do not migrate or replace `frontend/` when creating the mobile application. The web and mobile applications should remain separate targets and use compatible shared business logic where practical.
+The web and mobile applications remain separate targets. Shared modules contain no UI dependencies and are imported by both applications. The mobile dashboard, experiment library, and profile are grouped under Expo Router’s `(tabs)` route group; this is a route organization change only.
 
 ## Where to make future changes
 
 ### Add a new page
 
-1. Add a page component in `frontend/src/App.jsx` or extract it into `frontend/src/pages/`.
+1. Add a page component in `frontend/src/app/App.jsx` or extract it into `frontend/src/features/`.
 2. Add a page ID to the `page` state flow in `App`.
 3. Add a navigation button or CTA that calls `goTo('your-page-id')`.
-4. Add responsive styles in `frontend/src/App.css`.
+4. Add responsive styles in `frontend/src/styles/App.css`.
 
 The current app uses lightweight client-side page state rather than a router. A routing library can be introduced when URL-based navigation is needed.
 
 ### Add a new experiment
 
-1. Add an item to the `experiments` array in `frontend/src/App.jsx`.
+1. Add an item to `shared/data/experiments.js`.
 2. Provide an `id`, `subject`, `title`, `description`, `level`, `time`, `icon`, `color`, `available`, and `objectives`.
 3. Set `available: false` until the experiment has a working simulation.
 4. Create a dedicated simulation component when the experiment becomes functional.
@@ -193,16 +197,10 @@ The current app uses lightweight client-side page state rather than a router. A 
 
 ### Extend the electric circuit simulation
 
-The circuit calculation helpers are currently near the top of `frontend/src/App.jsx`:
+The circuit calculation helpers are in `shared/simulations/circuits/circuitLogic.js`:
 
 - `calculateCurrent(voltage, resistance, isClosed, isComplete)`
 - `getCircuitObservation(current, isClosed)`
-
-When the simulation grows, move these functions and circuit state validation into:
-
-```text
-frontend/src/simulations/circuits/circuitLogic.js
-```
 
 Keep scientific calculations deterministic and testable. UI components should display results, not ask the AI service to calculate them.
 
@@ -226,11 +224,11 @@ frontend/src/i18n/translations.js
 
 Use the existing `language` state to select the active translation set. Scientific terms should be reviewed rather than translated automatically.
 
-## Mobile application roadmap
+## Mobile application structure
 
-The next application target is a mobile-first React Native app built with Expo and Expo Router. It should work alongside the existing web application rather than replacing it.
+The mobile application is a mobile-first React Native app built with Expo and Expo Router. It works alongside the existing web application rather than replacing it.
 
-### Planned mobile screens
+### Current mobile screens
 
 - Splash screen with LabXAI branding and loading animation.
 - Three-step onboarding with Skip and Get Started actions.
@@ -240,7 +238,7 @@ The next application target is a mobile-first React Native app built with Expo a
 - AI assistant chat with mock responses until the backend is ready.
 - Profile and settings screen with language preference and app information.
 
-### Planned mobile stack
+### Mobile stack
 
 - React Native and Expo.
 - Expo Router for navigation.
@@ -254,19 +252,19 @@ The mobile circuit must not use browser-only HTML/SVG APIs. Its calculation mode
 
 ### Shared code rules
 
-When mobile work begins:
+When adding shared functionality:
 
-1. Move pure circuit functions from `frontend/src/App.jsx` into `shared/circuitLogic.js`.
-2. Add shared experiment definitions to `shared/experiments.js`.
-3. Add reviewed language strings to `shared/translations.js`.
+1. Add pure circuit functions to `shared/simulations/circuits/circuitLogic.js`.
+2. Add experiment definitions to `shared/data/experiments.js`.
+3. Add reviewed language strings under `shared/i18n/`.
 4. Import these modules from both applications without duplicating scientific formulas.
 5. Test the shared logic for open, incomplete, and active circuit states.
 
 Keep UI components platform-specific. React DOM components and React Native components should not be mixed.
 
-### Planned mobile API boundary
+### Mobile API boundary
 
-Create an API service in `mobile/services/api.js` and a matching web service when the backend is available. The service should use a configurable API base URL and provide methods for:
+The mobile API boundary is in `mobile/services/api.js`. Create a matching web service when the backend is available. The service should use a configurable API base URL and provide methods for:
 
 - Fetching experiment data.
 - Sending experiment state.
@@ -274,6 +272,8 @@ Create an API service in `mobile/services/api.js` and a matching web service whe
 - Saving or loading learning progress.
 
 Use environment variables for URLs and never commit credentials or tokens. Keep the mock assistant fallback until the FastAPI service is available.
+
+See [docs/architecture.md](docs/architecture.md) and [docs/api-contract.md](docs/api-contract.md) for the detailed boundaries.
 
 ## Scientific model
 
@@ -291,6 +291,14 @@ Where:
 - `R` is resistance in ohms.
 
 The current implementation assumes a complete circuit, ideal wires, and a single resistance value. It does not model battery internal resistance, bulb non-linear resistance, heat, or component failure.
+
+## Tests
+
+Run the shared scientific logic tests from the repository root:
+
+```powershell
+node --test tests\shared\circuitLogic.test.js
+```
 
 ## Suggested next features
 

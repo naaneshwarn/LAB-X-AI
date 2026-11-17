@@ -1,0 +1,1 @@
+# FastAPI dependencies will be added when backend implementation begins.
