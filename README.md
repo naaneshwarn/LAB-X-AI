@@ -1,323 +1,157 @@
-# LabXAI
+# LabXAI — AI-Powered Interactive Virtual Science Laboratory
 
-**Ask. Explore. Experiment. Understand.**
+LabXAI is an integrated full-stack educational platform that enables students to perform deterministic virtual physics experiments, inspect live graphs and instrumentation, interact with a context-aware AI science tutor, take assessments, and track learning progress in **English** and **Kannada (ಕನ್ನಡ)**.
 
-LabXAI is an interactive science learning platform for Classes 6–10. The frontend helps students explore virtual experiments, change scientific variables, observe results, and ask questions in a safe learning environment.
+---
 
-## Current status
+## Core Features
 
-The repository currently contains a responsive web frontend prototype and an initial Expo mobile prototype. The backend, database, and real AI service are not connected yet.
+- **Four Scientifically Deterministic Virtual Experiments**:
+  1. **Ohm's Law (`ohms-law`)** — Interactive DC circuit schematic (battery, resistor, series ammeter, parallel voltmeter), live `V = I × R` and `P = V × I` calculations, V–I graph, zero-resistance safety guard.
+  2. **Simple Pendulum (`simple-pendulum`)** — Animated pendulum with stopwatch, Earth/Moon/Mars gravity presets, `T = 2π√(L/g)`, frequency, total time for N oscillations, and explicit 4th-order large-angle deviation analysis.
+  3. **Projectile Motion (`projectile-motion`)** — Animated 2D parabolic trajectory with live velocity component vectors (`vx`, `vy`), apex height, horizontal range, flight time, and trajectory plot (under documented negligible-air-resistance assumptions).
+  4. **Convex Lens Optics (`convex-lens`)** — Thin-lens ray diagram using the New Cartesian Sign Convention (`1/f = 1/v − 1/u`), real/virtual & upright/inverted classification, magnification, optical power in Diopters, and clean singularity handling when `|u| = f` (image at infinity).
+- **Context-Aware AI Science Tutor (OpenRouter + Graceful Fallback)**:
+  - Server-side OpenRouter integration via HTTPX (`POST /api/v1/ai/explain`, `POST /api/v1/ai/chat`).
+  - Uses deterministic simulation measurements as the sole source of scientific truth.
+  - Automatically falls back to a clearly labeled deterministic explanation engine if `OPENROUTER_API_KEY` is missing or the upstream model is unavailable.
+- **Multilingual & Audio Accessibility**:
+  - Reviewed English (`en`) and Kannada (`kn`) UI dictionaries, bilingual experiment instructions, bilingual quizzes, and language-aware AI prompts.
+  - Extensible language registry prepared for Hindi (`hi`), Telugu (`te`), and Tamil (`ta`) via future AI4Bharat IndicTrans2 & Indic-TTS integration.
+  - Optional browser `SpeechSynthesis` narration controls (Play, Pause, Resume, Stop, voice selector).
+- **Quizzes, Student Dashboard & Learning History**:
+  - 4 seeded quizzes (5 questions each, 20 questions total) with instant grading and answer explanations.
+  - SQLite persistence (`backend/labxai.db`) storing demo student profile, saved simulation runs, quiz attempts, and chronological learning activity.
 
-### Implemented
+---
 
-- Responsive landing page with LabXAI branding and feature overview.
-- Student dashboard with demo progress, metrics, weekly activity, and continue-learning card.
-- Experiment library with search, subject filters, difficulty filters, and responsive experiment cards.
-- Basic Electric Circuit virtual laboratory.
-- SVG circuit diagram with battery, bulb, switch, resistor, and connecting wires.
-- Switch ON/OFF interaction and circuit status feedback.
-- Battery voltage and resistance sliders.
-- Deterministic Ohm's Law calculation:
-  - `I = V / R`
-  - Current is `0 A` when the switch is open.
-  - The bulb glows only when the circuit is active.
-- Animated current-flow feedback when the circuit is active.
-- Reset experiment control.
-- Stage 1 Interactive Circuit Builder mode with a component toolbox, grid workspace, drag/tap placement, selection, movement, deletion, rotation, and reset.
-- Stage 2 terminal-based wire connections with responsive SVG/native wire rendering, duplicate/self-connection guards, and connection cleanup when components are deleted.
-- Mock AI science assistant with suggested questions.
-- English/Kannada language selector UI. Full Kannada translation is not implemented yet.
-- Mobile, tablet, and desktop layouts.
+## Team Module Ownership
 
-### Demo-only behavior
+| Developer | Ownership | Primary Directories |
+|---|---|---|
+| **Naaneshwar** | Team Lead, FastAPI Backend, OpenRouter AI, SQLite DB, GitHub Integration | `backend/app/main.py`, `backend/app/core/`, `backend/app/database/`, `backend/app/services/openrouter_service.py`, `backend/app/api/routes/` |
+| **Rajath** | React Frontend, Dashboard, Library, Interactive Simulations, Recharts | `frontend/src/pages/`, `frontend/src/simulations/`, `frontend/src/api/`, `frontend/src/components/` |
+| **Janith** | Multilingual (English & Kannada), Narration, Quizzes & Learning Content | `frontend/src/i18n/`, `frontend/src/services/narration.js`, `backend/app/database/seed_data.py`, `backend/app/services/language_service.py` |
 
-- Dashboard values are sample data and are not persisted.
-- The AI assistant uses local mock responses. It does not call an AI backend.
-- Chemical Reactions, Human Body Systems, and Light and Reflection are marked as coming soon.
-- Scientific calculations are performed in the browser and do not depend on the AI assistant.
+See [`docs/API_CONTRACTS.md`](docs/API_CONTRACTS.md) for complete API request/response schemas and module boundaries.
 
-### Not implemented yet
+---
 
-- Native Android and iOS release builds.
-- Persistent authentication, database, and student progress.
-- FastAPI backend integration.
-- Real AI assistant integration.
-- Full Kannada interface translation.
-- Quizzes and additional functional experiments.
-- Electrical validation engine for user-built circuit topology.
-- Advanced electrical simulation, including current flow derived from user-built circuit topology.
+## Prerequisites (Windows — No Docker or Ollama Required)
 
-The mobile prototype is runnable with Expo and includes onboarding, dashboard, experiment library, profile/settings, assistant chat, and the Basic Electric Circuit lab. It has not yet been tested on physical Android or iOS devices.
+- **Python 3.11+** (existing virtual environment at `backend/.venv`)
+- **Node.js 18+** and **npm**
+- Optional: An **OpenRouter API key** (the full virtual lab, simulations, quizzes, dashboard, and offline deterministic tutor work even without one).
 
-## Technology stack
+---
 
-| Technology | Purpose |
-|---|---|
-| React | UI and application state |
-| Vite | Development server and production bundling |
-| JavaScript / JSX | Application and simulation logic |
-| CSS | Responsive layout, styling, and animations |
-| SVG | Circuit diagram and visual simulation |
-| Lucide React | Interface icons |
-| Oxlint | JavaScript linting |
+## Installation & Environment Configuration
 
-## Run the frontend
+### 1. Configure Backend Environment
 
-### Prerequisites
+Copy `backend/.env.example` to `backend/.env`:
 
-- Node.js LTS
-- npm
-- Git
+```cmd
+copy backend\.env.example backend\.env
+```
 
-### Install and start
+Edit `backend/.env` with your configuration (never commit `.env` to Git):
 
-From the repository root:
+```env
+APP_NAME=LabXAI
+ENVIRONMENT=development
+DATABASE_URL=sqlite:///./labxai.db
+ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+OPENROUTER_MODEL=nvidia/nemotron-3.5-lightning:free
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+OPENROUTER_TIMEOUT_SECONDS=30
+```
 
-```powershell
+> **Changing the AI model:** Update `OPENROUTER_MODEL` in `backend/.env` and restart the backend — no code changes required. LabXAI will never silently switch to a paid model.
+
+### 2. Install Backend Dependencies (Using Existing `.venv`)
+
+```cmd
+backend\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
+```
+
+### 3. Install Frontend Dependencies
+
+```cmd
+npm.cmd --prefix frontend install
+```
+
+*(Note: Using `npm.cmd` avoids Windows PowerShell script execution policy restrictions on `npm.ps1`.)*
+
+---
+
+## Running Locally on Windows
+
+### Option A: One-Click Scripts
+
+- **Start Backend (FastAPI on `http://127.0.0.1:8000`)**:
+  ```cmd
+  scripts\start-backend.bat
+  ```
+- **Start Frontend (Vite on `http://127.0.0.1:5173`)**:
+  ```cmd
+  scripts\start-frontend.bat
+  ```
+
+### Option B: Manual Commands
+
+**Terminal 1 — FastAPI Backend:**
+```cmd
+cd backend
+.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+The SQLite database (`backend/labxai.db`) initializes and seeds automatically on first startup without overwriting existing data.
+
+**Terminal 2 — React Frontend:**
+```cmd
 cd frontend
-npm install
-npm run dev
+npm.cmd run dev
 ```
 
-Open the URL printed by Vite, usually:
+Open `http://127.0.0.1:5173` in your browser. Interactive Swagger API docs are available at `http://127.0.0.1:8000/docs`.
 
-```text
-http://localhost:5173
+---
+
+## Automated Testing
+
+### Backend & Scientific Formula Tests (`pytest`)
+
+```cmd
+backend\.venv\Scripts\pytest.exe -c backend\pytest.ini backend\tests -v
 ```
 
-### Other commands
+Tests verify:
+- Preserved endpoints (`GET /`, `GET /health`, `GET /api/v1`)
+- All versioned `/api/v1/*` endpoints and SQLite persistence
+- Deterministic physics formulas for all 4 experiments (including edge cases like `R = 0` and convex lens `|u| = f`)
+- OpenRouter integration using mocked HTTP responses (401, 402, 404, 429, 503, timeouts, missing API key) without spending API quota
 
-Run the linter:
+### Frontend Physics Tests & Production Build
 
-```powershell
-cd frontend
-npm run lint
+```cmd
+npm.cmd --prefix frontend test
+npm.cmd --prefix frontend run build
 ```
 
-Create a production build:
+---
 
-```powershell
-cd frontend
-npm run build
-```
+## Troubleshooting
 
-Preview the production build locally:
+- **`npm.ps1 cannot be loaded because running scripts is disabled`**: Use `npm.cmd` instead of `npm` in PowerShell, or run via `cmd.exe`.
+- **AI Tutor shows "Deterministic Offline Tutor Mode"**: Set a valid `OPENROUTER_API_KEY` in `backend/.env` and restart Uvicorn. If the configured free model is temporarily unavailable or rate-limited, update `OPENROUTER_MODEL` in `backend/.env`.
+- **Kannada voice unavailable in browser**: Install the Windows/Chrome Kannada language speech pack, or continue reading Kannada text explanations while using the default voice.
+- **SQLite database**: Stored locally at `backend/labxai.db` (excluded from Git via `.gitignore`). Delete it only if you intentionally want a clean reset of demo student history.
 
-```powershell
-cd frontend
-npm run preview
-```
+---
 
-## Run the mobile app
+## Git Workflow
 
-The mobile app is a separate Expo project. From the repository root:
-
-```powershell
-cd mobile
-npm install
-npm start
-```
-
-Then scan the QR code with Expo Go, or use one of these commands:
-
-```powershell
-npm run android
-npm run ios
-npm run web
-```
-
-The mobile project can also be validated without a device:
-
-```powershell
-npx expo-doctor
-npx expo export --platform web
-```
-
-The API base URL is configured through `mobile/.env` using `mobile/.env.example` as a template. The current assistant remains in demo mode until the FastAPI backend is available.
-
-## Project structure
-
-```text
-LAB-X-AI/
-├── README.md
-├── frontend/              # React + Vite web application
-│   ├── package.json
-│   ├── public/
-│   └── src/
-│       ├── app/
-│       ├── assets/
-│       ├── components/
-│       ├── features/
-│       ├── hooks/
-│       ├── main.jsx
-│       ├── services/
-│       ├── i18n/
-│       ├── styles/
-│       ├── utils/
-│       └── constants/
-├── mobile/                # React Native + Expo application
-│   ├── app/                # Expo Router routes
-│   │   ├── (tabs)/
-│   ├── components/
-│   ├── features/
-│   ├── hooks/
-│   ├── services/
-│   ├── assets/
-│   └── constants/
-├── shared/                # Platform-neutral data and scientific logic
-│   ├── simulations/
-│   │   └── circuits/circuitLogic.js
-│   ├── data/
-│   ├── i18n/
-│   ├── validation/
-│   ├── constants/
-│   └── utils/
-├── backend/               # Future FastAPI boundary; no implementation yet
-│   └── app/
-├── docs/                  # Architecture, API, simulation, and development docs
-└── tests/                 # Shared, web, and mobile test areas
-```
-
-The web and mobile applications remain separate targets. Shared modules contain no UI dependencies and are imported by both applications. The mobile dashboard, experiment library, and profile are grouped under Expo Router’s `(tabs)` route group; this is a route organization change only.
-
-## Where to make future changes
-
-### Add a new page
-
-1. Add a page component in `frontend/src/app/App.jsx` or extract it into `frontend/src/features/`.
-2. Add a page ID to the `page` state flow in `App`.
-3. Add a navigation button or CTA that calls `goTo('your-page-id')`.
-4. Add responsive styles in `frontend/src/styles/App.css`.
-
-The current app uses lightweight client-side page state rather than a router. A routing library can be introduced when URL-based navigation is needed.
-
-### Add a new experiment
-
-1. Add an item to `shared/data/experiments.js`.
-2. Provide an `id`, `subject`, `title`, `description`, `level`, `time`, `icon`, `color`, `available`, and `objectives`.
-3. Set `available: false` until the experiment has a working simulation.
-4. Create a dedicated simulation component when the experiment becomes functional.
-5. Add its calculations as pure JavaScript functions separate from visual components.
-
-### Extend the electric circuit simulation
-
-The circuit calculation helpers are in `shared/simulations/circuits/circuitLogic.js`:
-
-- `calculateCurrent(voltage, resistance, isClosed, isComplete)`
-- `getCircuitObservation(current, isClosed)`
-
-Keep scientific calculations deterministic and testable. UI components should display results, not ask the AI service to calculate them.
-
-### Connect the AI assistant
-
-The current assistant is implemented in the `Assistant` component using local responses. Replace the response logic with a service module such as:
-
-```text
-frontend/src/services/api.js
-```
-
-The request should include experiment context such as voltage, resistance, switch state, current, and the selected language. Keep the local response as a visible fallback when the backend is unavailable, and clearly show connection state to students.
-
-### Add translations
-
-Move visible interface text into a translation object, for example:
-
-```text
-frontend/src/i18n/translations.js
-```
-
-Use the existing `language` state to select the active translation set. Scientific terms should be reviewed rather than translated automatically.
-
-## Mobile application structure
-
-The mobile application is a mobile-first React Native app built with Expo and Expo Router. It works alongside the existing web application rather than replacing it.
-
-### Current mobile screens
-
-- Splash screen with LabXAI branding and loading animation.
-- Three-step onboarding with Skip and Get Started actions.
-- Student dashboard with demo progress and recommendations.
-- Experiment library with search, subject filtering, and Coming Soon states.
-- Touch-friendly Basic Electric Circuit lab.
-- AI assistant chat with mock responses until the backend is ready.
-- Profile and settings screen with language preference and app information.
-
-### Mobile stack
-
-- React Native and Expo.
-- Expo Router for navigation.
-- `react-native-svg` for the circuit diagram.
-- React Native Reanimated for animations where needed.
-- Lucide React Native or a compatible icon library.
-- Expo Linear Gradient where useful.
-- AsyncStorage for local preferences and demo progress.
-
-The mobile circuit must not use browser-only HTML/SVG APIs. Its calculation model must match the web implementation: current is zero when the switch or circuit is inactive, and otherwise `I = V / R`.
-
-### Shared code rules
-
-When adding shared functionality:
-
-1. Add pure circuit functions to `shared/simulations/circuits/circuitLogic.js`.
-2. Add experiment definitions to `shared/data/experiments.js`.
-3. Add reviewed language strings under `shared/i18n/`.
-4. Import these modules from both applications without duplicating scientific formulas.
-5. Test the shared logic for open, incomplete, and active circuit states.
-
-Keep UI components platform-specific. React DOM components and React Native components should not be mixed.
-
-### Mobile API boundary
-
-The mobile API boundary is in `mobile/services/api.js`. Create a matching web service when the backend is available. The service should use a configurable API base URL and provide methods for:
-
-- Fetching experiment data.
-- Sending experiment state.
-- Asking the AI assistant.
-- Saving or loading learning progress.
-
-Use environment variables for URLs and never commit credentials or tokens. Keep the mock assistant fallback until the FastAPI service is available.
-
-See [docs/architecture.md](docs/architecture.md) and [docs/api-contract.md](docs/api-contract.md) for the detailed boundaries.
-
-## Scientific model
-
-The electric circuit is an idealized educational model:
-
-```text
-V = I × R
-I = V / R
-```
-
-Where:
-
-- `V` is voltage in volts.
-- `I` is current in amperes.
-- `R` is resistance in ohms.
-
-The current implementation assumes a complete circuit, ideal wires, and a single resistance value. It does not model battery internal resistance, bulb non-linear resistance, heat, or component failure.
-
-## Tests
-
-Run the shared scientific logic tests from the repository root:
-
-```powershell
-node --test tests\shared\circuitLogic.test.js
-```
-
-## Suggested next features
-
-- Extract the current single-file app into `components/`, `pages/`, `simulations/`, and `services/`.
-- Add automated tests for circuit calculations and input validation.
-- Add real experiment state and progress persistence.
-- Add backend API integration for the AI assistant.
-- Add reviewed Kannada translations.
-- Implement quizzes and learning milestones.
-- Add more interactive physics, chemistry, and biology experiments.
-- Add teacher and classroom monitoring features.
-- Add the Expo Android and iOS application with shared circuit logic.
-
-## Vision
-
-Make science learning more accessible, engaging, and experiential by combining interactive simulations with clear AI-powered explanations.
-
-**LabXAI – Learn Science by Exploring, Experimenting, and Understanding.**
+- Active development branch: `feature/backend-ai`
+- Never commit `.env`, API keys, `.venv/`, `node_modules/`, `dist/`, or `*.db`.
+- Always run backend tests (`pytest`) and frontend build (`npm.cmd run build`) before pushing.

@@ -1,9 +1,45 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Python
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.pyc
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Node / Frontend
 node_modules/
 dist/
-.expo/
+build/
+coverage/
+.vite/
 *.local
-.env
-.env.local
-__pycache__/
-*.pyc
+
+# IDE & OS
+.vscode/
+.idea/
 .DS_Store
+Thumbs.db
+*.log
