@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F5F3FF"/>
+      <stop offset="100%" stop-color="#EDE9FE"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg)" rx="12"/>
+  <text x="320" y="30" text-anchor="middle" font-size="18" font-weight="800" fill="#4C1D95">Mole Concept &amp; Stoichiometry</text>
+  <!-- Mole balance scale -->
+  <circle cx="320" cy="90" r="52" fill="#A78BFA" fill-opacity="0.3" stroke="#7C3AED" stroke-width="2.5"/>
+  <text x="320" y="82" text-anchor="middle" font-size="12" font-weight="800" fill="#4C1D95">1 Mole</text>
+  <text x="320" y="100" text-anchor="middle" font-size="10" font-weight="700" fill="#6D28D9">6.022 × 10²³ particles</text>
+  <text x="320" y="118" text-anchor="middle" font-size="10" fill="#6D28D9">Avogadro's Number</text>
+  <!-- Conversion arrows (left) -->
+  <rect x="20" y="175" width="140" height="90" rx="10" fill="white" fill-opacity="0.9" stroke="#DDD6FE" stroke-width="1.5"/>
+  <text x="90" y="198" text-anchor="middle" font-size="12" font-weight="700" fill="#4C1D95">Mass (g)</text>
+  <line x1="90" y1="205" x2="90" y2="215" stroke="#94A3B8" stroke-width="1.5"/>
+  <text x="90" y="228" text-anchor="middle" font-size="13" font-weight="800" fill="#2563EB">÷ Molar Mass</text>
+  <line x1="90" y1="232" x2="90" y2="250" stroke="#94A3B8" stroke-width="1.5"/>
+  <text x="90" y="262" text-anchor="middle" font-size="12" font-weight="700" fill="#6D28D9">→ n (mol)</text>
+  <!-- Center box -->
+  <rect x="230" y="155" width="180" height="130" rx="12" fill="#A78BFA" fill-opacity="0.3" stroke="#7C3AED" stroke-width="2"/>
+  <text x="320" y="180" text-anchor="middle" font-size="13" font-weight="800" fill="#4C1D95">Molar Mass</text>
+  <text x="320" y="200" text-anchor="middle" font-size="13" font-weight="800" fill="#6D28D9">M (g/mol)</text>
+  <text x="320" y="225" text-anchor="middle" font-size="10" fill="#374151">H₂O = 18 g/mol</text>
+  <text x="320" y="242" text-anchor="middle" font-size="10" fill="#374151">NaCl = 58.5 g/mol</text>
+  <text x="320" y="260" text-anchor="middle" font-size="10" fill="#374151">CO₂ = 44 g/mol</text>
+  <text x="320" y="278" text-anchor="middle" font-size="12" font-weight="700" fill="#6D28D9">n = m / M</text>
+  <!-- Right box -->
+  <rect x="480" y="175" width="140" height="90" rx="10" fill="white" fill-opacity="0.9" stroke="#DDD6FE" stroke-width="1.5"/>
+  <text x="550" y="198" text-anchor="middle" font-size="12" font-weight="700" fill="#4C1D95">Volume @ STP</text>
+  <text x="550" y="216" text-anchor="middle" font-size="13" font-weight="800" fill="#2563EB">× 22.4 L/mol</text>
+  <text x="550" y="234" text-anchor="middle" font-size="12" font-weight="700" fill="#6D28D9">→ Volume (L)</text>
+  <text x="550" y="262" text-anchor="middle" font-size="10" fill="#374151">Gas volume at STP</text>
+  <!-- Triangle relationship -->
+  <polygon points="320,308 200,370 440,370" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-dasharray="6,3"/>
+  <text x="200" y="388" text-anchor="middle" font-size="11" font-weight="700" fill="#6D28D9">Mass (m)</text>
+  <text x="320" y="302" text-anchor="middle" font-size="11" font-weight="700" fill="#6D28D9">Moles (n)</text>
+  <text x="445" y="388" text-anchor="middle" font-size="11" font-weight="700" fill="#6D28D9">Particles (N)</text>
+</svg>

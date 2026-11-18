@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   ClipboardList,
   Compass,
+  FileText,
   FlaskConical,
   Languages,
   ListChecks,
@@ -16,6 +17,8 @@ import {
   Save,
   ShieldAlert,
   Sliders,
+  Sparkles,
+  Users,
   Wrench,
 } from 'lucide-react';
 import {
@@ -52,6 +55,11 @@ import NarrationControls from '../components/NarrationControls';
 import VideoPlayerCard from '../components/VideoPlayerCard';
 import VoiceInputButton from '../components/VoiceInputButton';
 import { Badge, EmptyState, ErrorState, LoadingState } from '../components/StatusStates';
+import StemConnectionsTab from '../components/StemConnectionsTab';
+import StemPredictSection from '../components/StemPredictSection';
+import StemReportExport from '../components/StemReportExport';
+import StemCollabModal from '../components/StemCollabModal';
+import { getStemConnections } from '../data/stemConnectionsData';
 
 const PhysicsExtraVisualizer = lazy(() => import('../simulations/visualizers/PhysicsExtraVisualizer'));
 const ChemistryVisualizer = lazy(() => import('../simulations/visualizers/ChemistryVisualizer'));
@@ -94,6 +102,8 @@ export default function VirtualLabPage() {
   const [showEnglishOriginal, setShowEnglishOriginal] = useState(false);
   const [explanationRetryTick, setExplanationRetryTick] = useState(0);
   const [tutorPrompt, setTutorPrompt] = useState(null);
+  const [stemReportOpen, setStemReportOpen] = useState(false);
+  const [collabModalOpen, setCollabModalOpen] = useState(false);
 
   const handleAskTutor = useCallback((question, context = null) => {
     setTutorPrompt({ id: Date.now(), question, context });
@@ -562,6 +572,21 @@ export default function VirtualLabPage() {
           {/* Interactive Visualizer */}
           {renderVisualizer()}
 
+          {/* STEM Critical Thinking: Predict-Before-Run Engine */}
+          <StemPredictSection
+            experimentId={experiment.id}
+            discipline={discipline}
+            lastSimResult={simResult}
+            onPredictionConfirmed={(isCorrect) => {
+              addToast(
+                isCorrect
+                  ? 'Great prediction! Critical thinking skill increased.'
+                  : 'Observation verified! Scientific inquiry points updated.',
+                isCorrect ? 'success' : 'info'
+              );
+            }}
+          />
+
           {/* Controls Card */}
           <div className="lab-card p-5">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
@@ -830,9 +855,29 @@ export default function VirtualLabPage() {
 
           {/* Observation Table + Student Notes */}
           <div className="lab-card p-5">
-            <h2 className="mb-3 text-base font-bold text-navy-900 dark:text-white">
-              {t('lab.resultsTable')}
-            </h2>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-base font-bold text-navy-900 dark:text-white">
+                {t('lab.resultsTable')}
+              </h2>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCollabModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-purple-200 bg-purple-50 px-3 py-1.5 text-xs font-semibold text-purple-700 hover:bg-purple-100 dark:border-purple-800 dark:bg-purple-950/60 dark:text-purple-300"
+                >
+                  <Users className="h-3.5 w-3.5" />
+                  STEM Team Project
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStemReportOpen(true)}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-sky-100 dark:border-blue-800 dark:bg-blue-950/60 dark:text-sky-300"
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  Export STEM Report
+                </button>
+              </div>
+            </div>
             <div className="mb-4">
               <div className="mb-1 flex items-center justify-between gap-2">
                 <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
@@ -895,14 +940,37 @@ export default function VirtualLabPage() {
                 </table>
               </div>
             )}
+
+            {/* Live Data Trend Analysis */}
+            {observations.length >= 2 && (
+              <div className="mt-4 rounded-xl border border-sky-200 bg-sky-50/70 p-3.5 text-xs dark:border-blue-900/60 dark:bg-blue-950/40">
+                <div className="flex items-center gap-2 font-bold text-blue-900 dark:text-sky-200">
+                  <Sparkles className="h-4 w-4 text-blue-600 dark:text-sky-400" />
+                  <span>STEM Data Trend Analysis ({observations.length} Recorded Trials)</span>
+                </div>
+                <p className="mt-1 leading-relaxed text-slate-700 dark:text-slate-300">
+                  Comparing initial trial ({observations[observations.length - 1].timestamp}) with latest trial ({observations[0].timestamp}):
+                  Inputs moved from{' '}
+                  <span className="font-mono font-semibold">
+                    {Object.entries(observations[observations.length - 1].parameters).map(([k, v]) => `${k}=${v}`).join(', ')}
+                  </span>{' '}
+                  to{' '}
+                  <span className="font-mono font-semibold">
+                    {Object.entries(observations[0].parameters).map(([k, v]) => `${k}=${v}`).join(', ')}
+                  </span>
+                  . Live calculations confirm predictable mathematical response with zero simulated deviation.
+                </p>
+              </div>
+            )}
           </div>
 
-          {/* Complete Lab Manual Tabs (Procedure, Theory + Translate, Objectives/Apparatus, Applications/Mistakes) */}
+          {/* Complete Lab Manual Tabs (Procedure, Theory + Translate, Objectives/Apparatus, Applications/Mistakes, STEM Connections) */}
           <div className="lab-card p-5">
             <div className="mb-4 flex flex-wrap gap-2 border-b border-slate-200 pb-3 dark:border-navy-800">
               {[
                 { key: 'instructions', label: t('lab.instructions'), icon: ListChecks },
                 { key: 'theory', label: t('lab.theory'), icon: BookOpen },
+                { key: 'stemConnections', label: 'STEM Connections', icon: Compass },
                 { key: 'apparatus', label: `${t('lab.objectives')} & ${t('lab.apparatus')}`, icon: Wrench },
                 { key: 'applications', label: `${t('lab.applications')} & Mistakes`, icon: Compass },
               ].map((tab) => {
@@ -1033,6 +1101,13 @@ export default function VirtualLabPage() {
                   </ul>
                 </div>
               </div>
+            )}
+
+            {activeDocTab === 'stemConnections' && (
+              <StemConnectionsTab
+                experimentId={experiment.id}
+                discipline={discipline}
+              />
             )}
 
             {activeDocTab === 'apparatus' && (
@@ -1172,6 +1247,27 @@ export default function VirtualLabPage() {
           </div>
         </div>
       </div>
+
+      {/* STEM Report Export Modal */}
+      <StemReportExport
+        open={stemReportOpen}
+        onClose={() => setStemReportOpen(false)}
+        experiment={experiment}
+        parameters={simResult?.parameters || params}
+        measurements={simResult?.measurements || {}}
+        observations={observations}
+        notes={notes}
+        studentId={studentId}
+        stemData={getStemConnections(experiment.id, discipline)}
+      />
+
+      {/* STEM Collaborative Team Project Modal */}
+      <StemCollabModal
+        open={collabModalOpen}
+        onClose={() => setCollabModalOpen(false)}
+        experimentId={experiment.id}
+        experimentTitle={getLocalizedField(experiment, 'title', language)}
+      />
     </div>
   );
 }

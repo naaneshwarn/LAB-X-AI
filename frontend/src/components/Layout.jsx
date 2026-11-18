@@ -22,6 +22,7 @@ import {
   Moon,
   PlaySquare,
   Settings,
+  Sparkles,
   Sun,
   X,
 } from 'lucide-react';
@@ -244,6 +245,21 @@ export default function Layout({ children }) {
               {t('nav.playground')}
             </NavLink>
 
+            {/* STEM Engineering Challenges */}
+            <NavLink
+              to="/challenges"
+              className={({ isActive }) =>
+                `inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-extrabold transition ${
+                  isActive
+                    ? 'bg-amber-500 text-white shadow-sm'
+                    : 'bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-900/50'
+                }`
+              }
+            >
+              <Sparkles className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+              STEM Challenges
+            </NavLink>
+
             {/* Quick Subject Shortcuts */}
             <NavLink
               to="/lab/human-respiratory-system"
@@ -389,6 +405,7 @@ export default function Layout({ children }) {
                 { to: '/', label: t('nav.home'), icon: Home },
                 { to: '/library', label: 'Explore Labs', icon: BookOpen },
                 { to: '/playground', label: t('nav.playground'), icon: Cpu },
+                { to: '/challenges', label: 'STEM Challenges', icon: Sparkles },
                 { to: '/library?subject=Biology', label: 'Biology Lab', icon: Dna },
                 { to: '/library?subject=Chemistry', label: 'Chemistry Lab', icon: FlaskConical },
                 { to: '/library?subject=Mathematics', label: 'Math Lab', icon: Calculator },
@@ -451,6 +468,7 @@ export default function Layout({ children }) {
                 <li><Link to="/library?subject=Biology" className="hover:text-rose-500">Human Body &amp; Biology Lab</Link></li>
                 <li><Link to="/library?subject=Mathematics" className="hover:text-violet-600">Mathematics Simulations</Link></li>
                 <li><Link to="/playground" className="font-bold text-orange-600 hover:underline">Physics Playground</Link></li>
+                <li><Link to="/challenges" className="font-bold text-amber-600 hover:underline">STEM Challenges</Link></li>
               </ul>
             </div>
 

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#EFF6FF"/>
+      <stop offset="100%" stop-color="#DBEAFE"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg)" rx="12"/>
+  <text x="320" y="30" text-anchor="middle" font-size="18" font-weight="800" fill="#1E3A8A">States of Matter &amp; Kinetic Theory</text>
+  <!-- SOLID box -->
+  <rect x="20" y="52" width="175" height="220" rx="12" fill="white" fill-opacity="0.9" stroke="#93C5FD" stroke-width="2"/>
+  <text x="108" y="74" text-anchor="middle" font-size="13" font-weight="800" fill="#1D4ED8">SOLID</text>
+  <!-- Arranged particles in solid -->
+  <circle cx="58" cy="100" r="12" fill="#2563EB" opacity="0.9"/><circle cx="88" cy="100" r="12" fill="#2563EB" opacity="0.9"/><circle cx="118" cy="100" r="12" fill="#2563EB" opacity="0.9"/><circle cx="148" cy="100" r="12" fill="#2563EB" opacity="0.9"/>
+  <circle cx="58" cy="130" r="12" fill="#2563EB" opacity="0.9"/><circle cx="88" cy="130" r="12" fill="#2563EB" opacity="0.9"/><circle cx="118" cy="130" r="12" fill="#2563EB" opacity="0.9"/><circle cx="148" cy="130" r="12" fill="#2563EB" opacity="0.9"/>
+  <circle cx="58" cy="160" r="12" fill="#2563EB" opacity="0.9"/><circle cx="88" cy="160" r="12" fill="#2563EB" opacity="0.9"/><circle cx="118" cy="160" r="12" fill="#2563EB" opacity="0.9"/><circle cx="148" cy="160" r="12" fill="#2563EB" opacity="0.9"/>
+  <circle cx="58" cy="190" r="12" fill="#2563EB" opacity="0.9"/><circle cx="88" cy="190" r="12" fill="#2563EB" opacity="0.9"/><circle cx="118" cy="190" r="12" fill="#2563EB" opacity="0.9"/><circle cx="148" cy="190" r="12" fill="#2563EB" opacity="0.9"/>
+  <circle cx="58" cy="220" r="12" fill="#2563EB" opacity="0.9"/><circle cx="88" cy="220" r="12" fill="#2563EB" opacity="0.9"/><circle cx="118" cy="220" r="12" fill="#2563EB" opacity="0.9"/><circle cx="148" cy="220" r="12" fill="#2563EB" opacity="0.9"/>
+  <text x="108" y="254" text-anchor="middle" font-size="10" fill="#374151">Fixed positions</text>
+  <text x="108" y="268" text-anchor="middle" font-size="10" fill="#374151">Vibration only</text>
+  <!-- LIQUID box -->
+  <rect x="232" y="52" width="175" height="220" rx="12" fill="white" fill-opacity="0.9" stroke="#6EE7B7" stroke-width="2"/>
+  <text x="320" y="74" text-anchor="middle" font-size="13" font-weight="800" fill="#059669">LIQUID</text>
+  <!-- Scattered particles in liquid -->
+  <circle cx="268" cy="98" r="12" fill="#34D399" opacity="0.85"/><circle cx="302" cy="110" r="12" fill="#34D399" opacity="0.85"/><circle cx="336" cy="95" r="12" fill="#34D399" opacity="0.85"/>
+  <circle cx="258" cy="136" r="12" fill="#34D399" opacity="0.85"/><circle cx="296" cy="148" r="12" fill="#34D399" opacity="0.85"/><circle cx="334" cy="130" r="12" fill="#34D399" opacity="0.85"/>
+  <circle cx="270" cy="174" r="12" fill="#34D399" opacity="0.85"/><circle cx="308" cy="184" r="12" fill="#34D399" opacity="0.85"/><circle cx="345" cy="170" r="12" fill="#34D399" opacity="0.85"/>
+  <circle cx="260" cy="212" r="12" fill="#34D399" opacity="0.85"/><circle cx="300" cy="222" r="12" fill="#34D399" opacity="0.85"/><circle cx="338" cy="208" r="12" fill="#34D399" opacity="0.85"/>
+  <text x="320" y="254" text-anchor="middle" font-size="10" fill="#374151">Loosely packed</text>
+  <text x="320" y="268" text-anchor="middle" font-size="10" fill="#374151">Flows freely</text>
+  <!-- GAS box -->
+  <rect x="444" y="52" width="175" height="220" rx="12" fill="white" fill-opacity="0.9" stroke="#FCA5A5" stroke-width="2"/>
+  <text x="532" y="74" text-anchor="middle" font-size="13" font-weight="800" fill="#B91C1C">GAS</text>
+  <!-- Fast random particles in gas -->
+  <circle cx="470" cy="90" r="10" fill="#FB7185" opacity="0.8"/>
+  <circle cx="572" cy="82" r="10" fill="#FB7185" opacity="0.8"/>
+  <circle cx="600" cy="130" r="10" fill="#FB7185" opacity="0.8"/>
+  <circle cx="488" cy="145" r="10" fill="#FB7185" opacity="0.8"/>
+  <circle cx="556" cy="118" r="10" fill="#FB7185" opacity="0.8"/>
+  <circle cx="460" cy="188" r="10" fill="#FB7185" opacity="0.8"/>
+  <circle cx="528" cy="175" r="10" fill="#FB7185" opacity="0.8"/>
+  <circle cx="596" cy="195" r="10" fill="#FB7185" opacity="0.8"/>
+  <circle cx="484" cy="225" r="10" fill="#FB7185" opacity="0.8"/>
+  <circle cx="560" cy="234" r="10" fill="#FB7185" opacity="0.8"/>
+  <!-- Motion arrows on gas particles -->
+  <line x1="470" y1="90" x2="488" y2="78" stroke="#F87171" stroke-width="1.5"/>
+  <line x1="572" y1="82" x2="556" y2="96" stroke="#F87171" stroke-width="1.5"/>
+  <line x1="488" y1="145" x2="510" y2="130" stroke="#F87171" stroke-width="1.5"/>
+  <text x="532" y="254" text-anchor="middle" font-size="10" fill="#374151">Far apart</text>
+  <text x="532" y="268" text-anchor="middle" font-size="10" fill="#374151">Random fast motion</text>
+  <!-- Phase transition arrows -->
+  <text x="210" y="230" text-anchor="middle" font-size="10" fill="#2563EB">melt→</text>
+  <text x="210" y="175" text-anchor="middle" font-size="10" fill="#6D28D9">←freeze</text>
+  <text x="425" y="230" text-anchor="middle" font-size="10" fill="#059669">evap→</text>
+  <text x="425" y="175" text-anchor="middle" font-size="10" fill="#6D28D9">←cond</text>
+  <!-- Formula -->
+  <rect x="80" y="290" width="480" height="88" rx="12" fill="white" fill-opacity="0.88" stroke="#BAE6FD" stroke-width="1.5"/>
+  <text x="320" y="312" text-anchor="middle" font-size="13" font-weight="800" fill="#1E3A8A">Kinetic Particle Theory</text>
+  <text x="220" y="334" text-anchor="middle" font-size="12" font-weight="700" fill="#2563EB">KE_avg = (3/2) k_B T</text>
+  <text x="430" y="334" text-anchor="middle" font-size="12" font-weight="700" fill="#B91C1C">v_rms = √(3RT/M)</text>
+  <text x="320" y="358" text-anchor="middle" font-size="11" fill="#374151">Higher T → faster particles → phase change</text>
+</svg>

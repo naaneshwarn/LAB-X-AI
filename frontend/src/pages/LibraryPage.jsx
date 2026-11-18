@@ -1,18 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { CheckCircle2, Clock, FlaskConical, Search } from 'lucide-react';
+import { ArrowRight, Search, Sparkles } from 'lucide-react';
 import { labApi } from '../api/client';
 import { useApp } from '../context/AppContext';
-import { getLocalizedField, SUBJECT_COLORS } from '../i18n/translations';
 import VoiceInputButton from '../components/VoiceInputButton';
 import PageHeader from '../components/ui/PageHeader';
-import { Badge, EmptyState, ErrorState, LoadingState } from '../components/StatusStates';
+import ExperimentCard from '../components/ExperimentCard';
+import { EmptyState, ErrorState, LoadingState } from '../components/StatusStates';
 
 const DISCIPLINES = ['all', 'Physics', 'Chemistry', 'Biology', 'Mathematics'];
 const DIFFICULTIES = ['all', 'Basic', 'Intermediate', 'Advanced'];
 
 export default function LibraryPage() {
-  const { language, t } = useApp();
+  const { t } = useApp();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [experiments, setExperiments] = useState([]);
@@ -118,6 +118,29 @@ export default function LibraryPage() {
         </div>
       </div>
 
+      {/* STEM Engineering Challenges Banner */}
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50/80 via-orange-50/60 to-amber-50/80 p-4 dark:border-amber-900/60 dark:from-navy-900 dark:via-amber-950/30 dark:to-navy-900">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white shadow-sm">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <div>
+            <h3 className="text-xs font-bold text-amber-950 dark:text-amber-200">
+              Interdisciplinary STEM Challenges Mode
+            </h3>
+            <p className="text-[11px] text-amber-900/80 dark:text-amber-300/80">
+              Apply scientific experiments to solve real-world problems: circuit guards, automated irrigation, seismic bridges, and water filtration.
+            </p>
+          </div>
+        </div>
+        <Link
+          to="/challenges"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-amber-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-amber-700"
+        >
+          View 8 STEM Challenges <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+
       {loading ? (
         <LoadingState message={t('common.loading')} />
       ) : error ? (
@@ -141,68 +164,10 @@ export default function LibraryPage() {
           }
         />
       ) : (
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {experiments.map((exp) => {
-            const objectives = language === 'kn' ? exp.objectives_kn : exp.objectives;
-            const colors = SUBJECT_COLORS[exp.discipline] || SUBJECT_COLORS.Physics;
-            const diffBadge =
-              exp.difficulty === 'Basic' || exp.difficulty === 'Beginner'
-                ? 'emerald'
-                : exp.difficulty === 'Intermediate'
-                ? 'amber'
-                : 'rose';
-
-            return (
-              <article
-                key={exp.id}
-                className={`lab-card-hover flex flex-col justify-between border-t-4 p-5 ${colors.border}`}
-              >
-                <div>
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <Badge variant={colors.badge}>{exp.discipline}</Badge>
-                    <div className="flex items-center gap-1.5">
-                      <Badge variant={diffBadge}>{exp.difficulty}</Badge>
-                      <span className="inline-flex items-center gap-1 text-[11px] text-slate-500">
-                        <Clock className="h-3 w-3" />
-                        {exp.duration_minutes} {t('library.minutes')}
-                      </span>
-                    </div>
-                  </div>
-
-                  <h2 className="mt-3 text-base font-bold text-navy-900 dark:text-white">
-                    {getLocalizedField(exp, 'title', language)}
-                  </h2>
-                  <p className="mt-1.5 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
-                    {getLocalizedField(exp, 'short_description', language)}
-                  </p>
-
-                  {objectives?.length > 0 && (
-                    <ul className="mt-3 space-y-1">
-                      {objectives.slice(0, 2).map((obj) => (
-                        <li
-                          key={obj}
-                          className="flex items-start gap-1.5 text-[11px] text-slate-700 dark:text-slate-300"
-                        >
-                          <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-blue-600" />
-                          <span className="line-clamp-2">{obj}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-
-                <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3.5 dark:border-navy-800">
-                  <Link to={`/lab/${exp.id}`} className="lab-btn-primary flex-1 py-2 text-xs">
-                    <FlaskConical className="h-3.5 w-3.5" />
-                    {t('library.startExperiment')}
-                  </Link>
-                  <Link to={`/quizzes?experiment=${exp.id}`} className="lab-btn-secondary py-2 text-xs">
-                    {t('dashboard.takeQuiz')}
-                  </Link>
-                </div>
-              </article>
-            );
-          })}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {experiments.map((exp) => (
+            <ExperimentCard key={exp.id} exp={exp} />
+          ))}
         </div>
       )}
     </div>

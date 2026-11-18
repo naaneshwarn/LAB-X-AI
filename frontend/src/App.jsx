@@ -13,6 +13,7 @@ const PhysicsPlaygroundPage = lazy(() => import('./pages/PhysicsPlaygroundPage')
 const VideoLibraryPage = lazy(() => import('./pages/VideoLibraryPage'));
 const AiTutorPage = lazy(() => import('./pages/AiTutorPage'));
 const QuizzesPage = lazy(() => import('./pages/QuizzesPage'));
+const StemChallengesPage = lazy(() => import('./pages/StemChallengesPage'));
 const HistoryPage = lazy(() => import('./pages/HistoryPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 
@@ -33,6 +34,8 @@ export default function App() {
               <Route path="/playground" element={<PhysicsPlaygroundPage />} />
               <Route path="/videos" element={<VideoLibraryPage />} />
               <Route path="/tutor" element={<AiTutorPage />} />
+              <Route path="/challenges" element={<StemChallengesPage />} />
+              <Route path="/stem-challenges" element={<StemChallengesPage />} />
               <Route path="/quizzes" element={<QuizzesPage />} />
               <Route path="/history" element={<HistoryPage />} />
               <Route path="/reports" element={<HistoryPage />} />

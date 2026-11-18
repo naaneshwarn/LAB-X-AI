@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F5F3FF"/>
+      <stop offset="100%" stop-color="#EDE9FE"/>
+    </linearGradient>
+    <radialGradient id="nucleus" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#5B21B6"/>
+    </radialGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg)" rx="12"/>
+  <text x="320" y="34" text-anchor="middle" font-size="20" font-weight="800" fill="#4C1D95">Atomic Structure &amp; Electron Shells</text>
+  <!-- Nucleus -->
+  <circle cx="320" cy="210" r="38" fill="url(#nucleus)" stroke="#4C1D95" stroke-width="3"/>
+  <text x="320" y="204" text-anchor="middle" font-size="13" font-weight="800" fill="white">p⁺ n⁰</text>
+  <text x="320" y="222" text-anchor="middle" font-size="10" fill="#DDD6FE">Nucleus</text>
+  <!-- Shell 1 (K) -->
+  <circle cx="320" cy="210" r="70" fill="none" stroke="#818CF8" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="250" y="140" font-size="11" font-weight="700" fill="#6D28D9">K shell (n=1)</text>
+  <!-- Electrons on shell 1 -->
+  <circle cx="320" cy="140" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="2"/>
+  <text x="320" y="144" text-anchor="middle" font-size="9" fill="white">e⁻</text>
+  <circle cx="320" cy="280" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="2"/>
+  <text x="320" y="284" text-anchor="middle" font-size="9" fill="white">e⁻</text>
+  <!-- Shell 2 (L) -->
+  <circle cx="320" cy="210" r="130" fill="none" stroke="#A78BFA" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="188" y="80" font-size="11" font-weight="700" fill="#6D28D9">L shell (n=2)</text>
+  <!-- L shell electrons -->
+  <circle cx="420" cy="128" r="10" fill="#34D399" stroke="#059669" stroke-width="2"/>
+  <text x="420" y="132" text-anchor="middle" font-size="9" fill="white">e⁻</text>
+  <circle cx="450" cy="210" r="10" fill="#34D399" stroke="#059669" stroke-width="2"/>
+  <text x="450" y="214" text-anchor="middle" font-size="9" fill="white">e⁻</text>
+  <circle cx="420" cy="292" r="10" fill="#34D399" stroke="#059669" stroke-width="2"/>
+  <text x="420" y="296" text-anchor="middle" font-size="9" fill="white">e⁻</text>
+  <circle cx="220" cy="128" r="10" fill="#34D399" stroke="#059669" stroke-width="2"/>
+  <text x="220" y="132" text-anchor="middle" font-size="9" fill="white">e⁻</text>
+  <circle cx="190" cy="210" r="10" fill="#34D399" stroke="#059669" stroke-width="2"/>
+  <text x="190" y="214" text-anchor="middle" font-size="9" fill="white">e⁻</text>
+  <circle cx="220" cy="292" r="10" fill="#34D399" stroke="#059669" stroke-width="2"/>
+  <text x="220" y="296" text-anchor="middle" font-size="9" fill="white">e⁻</text>
+  <circle cx="320" cy="340" r="10" fill="#34D399" stroke="#059669" stroke-width="2"/>
+  <text x="320" y="344" text-anchor="middle" font-size="9" fill="white">e⁻</text>
+  <circle cx="320" cy="80" r="10" fill="#34D399" stroke="#059669" stroke-width="2"/>
+  <text x="320" y="84" text-anchor="middle" font-size="9" fill="white">e⁻</text>
+  <!-- Label box -->
+  <rect x="460" y="280" width="160" height="88" rx="10" fill="white" fill-opacity="0.9" stroke="#DDD6FE" stroke-width="1.5"/>
+  <text x="540" y="302" text-anchor="middle" font-size="12" font-weight="800" fill="#4C1D95">Bohr Model</text>
+  <text x="540" y="320" text-anchor="middle" font-size="11" fill="#6D28D9">Protons: Z</text>
+  <text x="540" y="336" text-anchor="middle" font-size="11" fill="#6D28D9">K: max 2e⁻</text>
+  <text x="540" y="352" text-anchor="middle" font-size="11" fill="#6D28D9">L: max 8e⁻</text>
+</svg>

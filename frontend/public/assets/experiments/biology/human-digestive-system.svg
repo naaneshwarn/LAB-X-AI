@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F0FDF4"/>
+      <stop offset="100%" stop-color="#DCFCE7"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg)" rx="12"/>
+  <text x="320" y="28" text-anchor="middle" font-size="18" font-weight="800" fill="#14532D">Human Digestive System</text>
+  <!-- Mouth -->
+  <rect x="263" y="44" width="74" height="22" rx="8" fill="#FECDD3" stroke="#BE123C" stroke-width="2"/>
+  <text x="300" y="58" text-anchor="middle" font-size="10" font-weight="700" fill="#9F1239">Mouth</text>
+  <!-- Oesophagus -->
+  <rect x="287" y="66" width="26" height="45" rx="6" fill="#86EFAC" stroke="#16A34A" stroke-width="2"/>
+  <text x="322" y="92" font-size="9" fill="#374151">Oesophagus</text>
+  <!-- Stomach -->
+  <path d="M264,112 Q235,118 228,148 Q222,178 240,200 Q258,222 285,218 Q310,214 318,195 Q325,172 318,152 Q310,128 290,114 Z" fill="#FCD34D" fill-opacity="0.9" stroke="#D97706" stroke-width="2.5"/>
+  <text x="270" y="168" text-anchor="middle" font-size="11" font-weight="700" fill="#92400E">Stomach</text>
+  <text x="270" y="184" text-anchor="middle" font-size="9" fill="#A16207">pH 1.5-3</text>
+  <!-- Small intestine (loops) -->
+  <path d="M288,218 Q290,240 270,250 Q248,262 250,284 Q252,305 272,315 Q295,325 318,315 Q340,305 342,284 Q344,262 322,250 Q300,238 303,218" fill="none" stroke="#34D399" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="296" y="268" text-anchor="middle" font-size="9" fill="#065F46" font-weight="700">Small Intestine</text>
+  <!-- Large intestine (colon frame) -->
+  <path d="M265,330 Q200,328 195,280 Q192,240 215,220 Q235,205 255,218" fill="none" stroke="#FB923C" stroke-width="10" stroke-linecap="round"/>
+  <path d="M330,330 Q395,328 400,280 Q403,240 380,220 Q360,205 340,218" fill="none" stroke="#FB923C" stroke-width="10" stroke-linecap="round"/>
+  <path d="M265,330 Q296,338 330,330" fill="none" stroke="#FB923C" stroke-width="10"/>
+  <text x="420" y="270" font-size="9" font-weight="700" fill="#C2410C">Large Intestine</text>
+  <!-- Liver -->
+  <ellipse cx="380" cy="148" rx="52" ry="38" fill="#FB7185" fill-opacity="0.8" stroke="#BE123C" stroke-width="2"/>
+  <text x="380" y="152" text-anchor="middle" font-size="11" font-weight="700" fill="white">Liver</text>
+  <!-- Gallbladder -->
+  <ellipse cx="425" cy="185" rx="20" ry="14" fill="#A3E635" stroke="#65A30D" stroke-width="1.5"/>
+  <text x="425" y="189" text-anchor="middle" font-size="8" font-weight="700" fill="white">Gall Blad.</text>
+  <!-- Pancreas -->
+  <path d="M330,186 Q370,180 400,188 Q420,195 418,205 Q390,214 350,210 Q325,205 330,186" fill="#C4B5FD" stroke="#7C3AED" stroke-width="1.5"/>
+  <text x="372" y="210" text-anchor="middle" font-size="8" font-weight="700" fill="#4C1D95">Pancreas</text>
+  <!-- Rectum/anus -->
+  <rect x="285" y="338" width="30" height="30" rx="6" fill="#A8A29E" stroke="#78716C" stroke-width="1.5"/>
+  <text x="300" y="356" text-anchor="middle" font-size="9" fill="white">Rectum</text>
+  <!-- Labels box -->
+  <rect x="488" y="44" width="140" height="310" rx="10" fill="white" fill-opacity="0.88" stroke="#A7F3D0" stroke-width="1.5"/>
+  <text x="558" y="66" text-anchor="middle" font-size="11" font-weight="800" fill="#14532D">Digestion Stages</text>
+  <text x="558" y="86" text-anchor="middle" font-size="10" fill="#374151">1. Ingestion (Mouth)</text>
+  <text x="558" y="104" text-anchor="middle" font-size="10" fill="#374151">Amylase breaks starch</text>
+  <text x="558" y="124" text-anchor="middle" font-size="10" fill="#374151">2. Stomach</text>
+  <text x="558" y="142" text-anchor="middle" font-size="10" fill="#374151">HCl + pepsin → proteins</text>
+  <text x="558" y="162" text-anchor="middle" font-size="10" fill="#374151">3. Small Intestine</text>
+  <text x="558" y="180" text-anchor="middle" font-size="10" fill="#374151">Bile + lipase + trypsin</text>
+  <text x="558" y="198" text-anchor="middle" font-size="10" fill="#374151">nutrients absorbed</text>
+  <text x="558" y="218" text-anchor="middle" font-size="10" fill="#374151">4. Large Intestine</text>
+  <text x="558" y="236" text-anchor="middle" font-size="10" fill="#374151">Water reabsorption</text>
+  <text x="558" y="256" text-anchor="middle" font-size="10" fill="#374151">5. Egestion</text>
+  <text x="558" y="274" text-anchor="middle" font-size="10" fill="#374151">Faeces excreted</text>
+  <text x="558" y="306" text-anchor="middle" font-size="12" font-weight="700" fill="#14532D">Total length:</text>
+  <text x="558" y="324" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">~9 metres</text>
+</svg>

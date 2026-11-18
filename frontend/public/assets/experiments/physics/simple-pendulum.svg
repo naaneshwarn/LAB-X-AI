@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F0F9FF"/>
+      <stop offset="100%" stop-color="#E0F2FE"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg)" rx="12"/>
+  <!-- Pivot beam -->
+  <rect x="100" y="60" width="440" height="18" rx="6" fill="#334155"/>
+  <!-- Pivot point -->
+  <circle cx="320" cy="69" r="10" fill="#64748B"/>
+  <!-- Arc path -->
+  <path d="M220,180 Q320,100 420,180" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <!-- Left ghost pendulum -->
+  <line x1="320" y1="78" x2="210" y2="290" stroke="#93C5FD" stroke-width="2.5" stroke-dasharray="5,3"/>
+  <circle cx="210" cy="300" r="22" fill="#BFDBFE" stroke="#60A5FA" stroke-width="2"/>
+  <!-- Main pendulum (center, slight right swing) -->
+  <line x1="320" y1="78" x2="380" y2="300" stroke="#1D4ED8" stroke-width="4"/>
+  <circle cx="380" cy="316" r="28" fill="#2563EB"/>
+  <circle cx="373" cy="308" r="6" fill="white" fill-opacity="0.5"/>
+  <!-- Right ghost pendulum -->
+  <line x1="320" y1="78" x2="430" y2="290" stroke="#93C5FD" stroke-width="2.5" stroke-dasharray="5,3"/>
+  <circle cx="430" cy="300" r="22" fill="#BFDBFE" stroke="#60A5FA" stroke-width="2"/>
+  <!-- Labels -->
+  <line x1="380" y1="78" x2="380" y2="300" stroke="#94A3B8" stroke-width="1" stroke-dasharray="3,3"/>
+  <text x="395" y="195" font-size="14" font-weight="700" fill="#1D4ED8">L</text>
+  <path d="M335,210 A30,30 0 0,1 365,185" fill="none" stroke="#F59E0B" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="348" y="230" font-size="12" font-weight="700" fill="#D97706">θ</text>
+  <!-- Formula box -->
+  <rect x="20" y="310" width="210" height="62" rx="10" fill="white" fill-opacity="0.92" stroke="#BAE6FD" stroke-width="1.5"/>
+  <text x="125" y="333" text-anchor="middle" font-size="13" font-weight="700" fill="#0C4A6E">T = 2π√(L/g)</text>
+  <text x="125" y="352" text-anchor="middle" font-size="11" fill="#0369A1">Period · Length · Gravity</text>
+  <text x="125" y="366" text-anchor="middle" font-size="11" fill="#0369A1">g = 9.8 m/s²</text>
+  <!-- Title -->
+  <text x="320" y="38" text-anchor="middle" font-size="20" font-weight="800" fill="#0C4A6E">Simple Pendulum</text>
+</svg>

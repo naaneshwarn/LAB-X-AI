@@ -353,6 +353,24 @@ export default function AiTutorPanel({ experimentId, parameters, measurements, p
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
               Supports English, ಕನ್ನಡ, हिन्दी, తెలుగు, and தமிழ் with voice input &amp; read-aloud.
             </p>
+            <div className="mt-3 flex flex-wrap justify-center gap-1.5">
+              {[
+                'How is this used in Engineering?',
+                'Explain the governing formulas',
+                'What is the real-world application?',
+                'Help me form a hypothesis',
+              ].map((stemPrompt) => (
+                <button
+                  key={stemPrompt}
+                  type="button"
+                  disabled={loading}
+                  onClick={() => sendMessage(stemPrompt)}
+                  className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700 transition hover:bg-sky-100 dark:border-blue-800 dark:bg-blue-950/60 dark:text-sky-300"
+                >
+                  {stemPrompt}
+                </button>
+              ))}
+            </div>
           </div>
         ) : (
           messages.map((msg) => (

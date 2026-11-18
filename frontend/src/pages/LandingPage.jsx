@@ -25,6 +25,7 @@ import { labApi } from '../api/client';
 import { useApp } from '../context/AppContext';
 import { getLocalizedField, LANGUAGE_METADATA, SUBJECT_COLORS } from '../i18n/translations';
 import { Badge } from '../components/StatusStates';
+import ExperimentCard from '../components/ExperimentCard';
 
 const SUBJECT_CARDS = [
   {
@@ -636,39 +637,10 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
-          {featuredLabs.map((exp) => {
-            const disc = exp.discipline || exp.subject;
-            const style = SUBJECT_COLORS[disc] || SUBJECT_COLORS.Physics;
-            return (
-              <div key={exp.id} className="lab-card-hover flex flex-col justify-between p-6">
-                <div>
-                  <div className="flex items-center justify-between gap-2">
-                    <Badge variant={style.badge}>{disc}</Badge>
-                    <Badge variant="default">
-                      {exp.difficulty} · {exp.duration_minutes} {t('library.minutes')}
-                    </Badge>
-                  </div>
-                  <h3 className="mt-3 text-lg font-extrabold text-slate-900 dark:text-white">
-                    {getLocalizedField(exp, 'title', language)}
-                  </h3>
-                  <p className="mt-1.5 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
-                    {getLocalizedField(exp, 'short_description', language)}
-                  </p>
-                </div>
-                <div className="mt-5 flex flex-wrap items-center gap-2.5 border-t border-slate-100 pt-4 dark:border-navy-800">
-                  <Link to={`/lab/${exp.id}`} className="lab-btn-primary px-3.5 py-2 text-xs">
-                    <FlaskConical className="h-3.5 w-3.5" />
-                    {t('landing.openExperiment')}
-                  </Link>
-                  <Link to={`/quizzes?experiment=${exp.id}`} className="lab-btn-secondary px-3.5 py-2 text-xs">
-                    <ClipboardList className="h-3.5 w-3.5 text-violet-600" />
-                    {t('dashboard.takeQuiz')}
-                  </Link>
-                </div>
-              </div>
-            );
-          })}
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {featuredLabs.map((exp) => (
+            <ExperimentCard key={exp.id} exp={exp} />
+          ))}
         </div>
 
         {/* Learning Resource Quick Cards */}

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F0FDF4"/>
+      <stop offset="100%" stop-color="#ECFDF5"/>
+    </linearGradient>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#FBBF24"/>
+    </marker>
+    <marker id="arr2" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#34D399"/>
+    </marker>
+    <marker id="arr3" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#FB923C"/>
+    </marker>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg)" rx="12"/>
+  <!-- Prism -->
+  <polygon points="320,80 160,320 480,320" fill="#DBEAFE" fill-opacity="0.7" stroke="#2563EB" stroke-width="3"/>
+  <!-- Incident white ray -->
+  <line x1="80" y1="120" x2="240" y2="202" stroke="#FBBF24" stroke-width="4" marker-end="url(#arr)"/>
+  <!-- Refracted inside prism -->
+  <line x1="240" y1="202" x2="380" y2="306" stroke="white" stroke-width="3" stroke-dasharray="6,3"/>
+  <!-- Dispersed rays (rainbow) -->
+  <line x1="380" y1="308" x2="530" y2="260" stroke="#EF4444" stroke-width="3" marker-end="url(#arr2)"/>
+  <line x1="380" y1="308" x2="535" y2="285" stroke="#FB923C" stroke-width="3"/>
+  <line x1="380" y1="308" x2="537" y2="310" stroke="#FBBF24" stroke-width="3"/>
+  <line x1="380" y1="308" x2="535" y2="332" stroke="#34D399" stroke-width="3"/>
+  <line x1="380" y1="308" x2="530" y2="358" stroke="#60A5FA" stroke-width="3"/>
+  <line x1="380" y1="308" x2="522" y2="376" stroke="#818CF8" stroke-width="3"/>
+  <!-- Normal at entry -->
+  <line x1="240" y1="150" x2="240" y2="260" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <!-- Angle labels -->
+  <path d="M210,202 A32,32 0 0,1 240,170" fill="none" stroke="#FBBF24" stroke-width="2"/>
+  <text x="195" y="188" font-size="12" font-weight="700" fill="#D97706">θ₁</text>
+  <path d="M240,220 A32,32 0 0,0 268,210" fill="none" stroke="#34D399" stroke-width="2"/>
+  <text x="258" y="238" font-size="12" font-weight="700" fill="#059669">θ₂</text>
+  <!-- Snell label -->
+  <rect x="20" y="310" width="220" height="58" rx="10" fill="white" fill-opacity="0.92" stroke="#A7F3D0" stroke-width="1.5"/>
+  <text x="130" y="333" text-anchor="middle" font-size="13" font-weight="700" fill="#065F46">Snell's Law</text>
+  <text x="130" y="352" text-anchor="middle" font-size="13" font-weight="700" fill="#059669">n₁ sin θ₁ = n₂ sin θ₂</text>
+  <text x="130" y="366" text-anchor="middle" font-size="11" fill="#6EE7B7">Dispersion → Rainbow</text>
+  <!-- Title -->
+  <text x="320" y="38" text-anchor="middle" font-size="20" font-weight="800" fill="#065F46">Refraction of Light &amp; Prism</text>
+</svg>

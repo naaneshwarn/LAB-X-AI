@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFF7ED"/>
+      <stop offset="100%" stop-color="#FFEDD5"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg)" rx="12"/>
+  <text x="320" y="28" text-anchor="middle" font-size="18" font-weight="800" fill="#C2410C">Quadratic Equations &amp; Parabola</text>
+  <!-- Main parabola graph -->
+  <rect x="20" y="44" width="380" height="330" rx="12" fill="white" fill-opacity="0.9" stroke="#FED7AA" stroke-width="1.5"/>
+  <!-- Axes -->
+  <line x1="40" y1="280" x2="380" y2="280" stroke="#374151" stroke-width="2"/>
+  <line x1="210" y1="58" x2="210" y2="358" stroke="#374151" stroke-width="2"/>
+  <text x="376" y="276" font-size="12" fill="#374151">x</text>
+  <text x="206" y="58" font-size="12" fill="#374151">y</text>
+  <!-- Parabola y = x² - 4x + 3 -->
+  <path d="M54,350 Q100,290 155,250 Q180,240 210,245 Q240,240 265,250 Q320,290 366,350" fill="none" stroke="#C2410C" stroke-width="3.5"/>
+  <!-- Roots -->
+  <circle cx="120" cy="280" r="8" fill="#EF4444" stroke="white" stroke-width="2"/>
+  <text x="108" y="298" font-size="11" font-weight="700" fill="#B91C1C">x=1</text>
+  <circle cx="300" cy="280" r="8" fill="#EF4444" stroke="white" stroke-width="2"/>
+  <text x="302" y="298" font-size="11" font-weight="700" fill="#B91C1C">x=3</text>
+  <!-- Vertex -->
+  <circle cx="210" cy="244" r="8" fill="#2563EB" stroke="white" stroke-width="2"/>
+  <text x="218" y="240" font-size="11" font-weight="700" fill="#1D4ED8">vertex (2,−1)</text>
+  <!-- Axis of symmetry -->
+  <line x1="210" y1="58" x2="210" y2="358" stroke="#A78BFA" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="218" y="78" font-size="10" fill="#6D28D9">x=2 (sym.)</text>
+  <!-- y-intercept -->
+  <circle cx="210" cy="236" r="6" fill="#22C55E"/>
+  <!-- Title label -->
+  <text x="210" y="368" text-anchor="middle" font-size="13" font-weight="700" fill="#C2410C">y = x² − 4x + 3</text>
+  <!-- Right: Quadratic formula + discriminant -->
+  <rect x="420" y="44" width="200" height="330" rx="12" fill="white" fill-opacity="0.9" stroke="#FED7AA" stroke-width="1.5"/>
+  <text x="520" y="72" text-anchor="middle" font-size="12" font-weight="800" fill="#C2410C">Quadratic Formula</text>
+  <rect x="434" y="82" width="172" height="60" rx="8" fill="#C2410C"/>
+  <text x="520" y="106" text-anchor="middle" font-size="12" font-weight="800" fill="white">x = −b ± √(b²−4ac)</text>
+  <text x="520" y="126" text-anchor="middle" font-size="12" font-weight="800" fill="white">──────────────</text>
+  <text x="520" y="142" text-anchor="middle" font-size="12" font-weight="800" fill="white">2a</text>
+  <text x="520" y="172" text-anchor="middle" font-size="11" font-weight="700" fill="#C2410C">Discriminant Δ = b²−4ac</text>
+  <text x="520" y="196" text-anchor="middle" font-size="10" fill="#374151">Δ &gt; 0: 2 real roots</text>
+  <text x="520" y="216" text-anchor="middle" font-size="10" fill="#374151">Δ = 0: 1 real root (tangent)</text>
+  <text x="520" y="236" text-anchor="middle" font-size="10" fill="#374151">Δ &lt; 0: no real roots</text>
+  <text x="520" y="268" text-anchor="middle" font-size="12" font-weight="700" fill="#C2410C">Example:</text>
+  <text x="520" y="290" text-anchor="middle" font-size="11" fill="#374151">a=1, b=−4, c=3</text>
+  <text x="520" y="310" text-anchor="middle" font-size="11" fill="#374151">Δ = 16−12 = 4</text>
+  <text x="520" y="330" text-anchor="middle" font-size="12" font-weight="700" fill="#B91C1C">x = (4±2)/2 = 1,3</text>
+  <text x="520" y="354" text-anchor="middle" font-size="10" fill="#374151">vertex: x = −b/2a = 2</text>
+</svg>

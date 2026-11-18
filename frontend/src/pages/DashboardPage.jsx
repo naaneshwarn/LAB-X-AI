@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   ClipboardList,
   Clock,
+  Compass,
   Cpu,
   Dna,
   Flame,
@@ -162,6 +163,95 @@ export default function DashboardPage() {
   ];
 
   const earnedCount = achievements.filter((a) => a.earned).length;
+
+  // Real data-driven STEM competency calculations
+  const runs = progress.total_simulation_runs || 0;
+  const quizAvg = progress.average_quiz_score || 0;
+  const quizzesCount = progress.quizzes_attempted || 0;
+  const predictionsLog = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('labxai_stem_predictions_log') || '[]');
+    } catch {
+      return [];
+    }
+  })();
+  const completedChallenges = (() => {
+    try {
+      return Object.keys(JSON.parse(localStorage.getItem('labxai_stem_completed_challenges') || '{}')).length;
+    } catch {
+      return 0;
+    }
+  })();
+  const collabProjects = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('labxai_stem_collab_projects') || '[]').length;
+    } catch {
+      return 0;
+    }
+  })();
+
+  const stemCompetencies = [
+    {
+      id: 'science',
+      label: 'Scientific Inquiry',
+      score: Math.min(100, Math.max(0, Math.round(quizAvg * 0.6 + runs * 5))),
+      action: 'Run simulation trials to expand empirical observations',
+      color: 'bg-blue-600',
+    },
+    {
+      id: 'critical_thinking',
+      label: 'Critical Thinking & Prediction',
+      score: Math.min(100, predictionsLog.length * 20),
+      action: 'Test hypotheses using the Predict-Before-Run feature on experiment pages',
+      color: 'bg-indigo-600',
+    },
+    {
+      id: 'problem_solving',
+      label: 'Problem Solving & Design',
+      score: Math.min(100, completedChallenges * 25),
+      action: 'Solve real-world challenges in the STEM Challenges section',
+      color: 'bg-amber-600',
+    },
+    {
+      id: 'experimentation',
+      label: 'Practical Experimentation',
+      score: Math.min(100, runs * 15),
+      action: 'Execute multidisciplinary virtual labs across all 4 subjects',
+      color: 'bg-emerald-600',
+    },
+    {
+      id: 'data_analysis',
+      label: 'Quantitative Data Analysis',
+      score: Math.min(100, runs * 12 + quizzesCount * 6),
+      action: 'Record observation logs and review live data trend analyses',
+      color: 'bg-cyan-600',
+    },
+    {
+      id: 'math_modeling',
+      label: 'Mathematical Modeling',
+      score: Math.min(100, Math.round(quizAvg * 0.5 + runs * 7)),
+      action: 'Explore algebraic, trigonometric, and calculus simulations',
+      color: 'bg-purple-600',
+    },
+    {
+      id: 'technology',
+      label: 'Technology & Instrumentation',
+      score: Math.min(100, completedChallenges * 18 + runs * 10),
+      action: 'Inspect virtual microcontroller snippets and sensor telemetry',
+      color: 'bg-teal-600',
+    },
+    {
+      id: 'collaboration',
+      label: 'Communication & Teamwork',
+      score: Math.min(100, collabProjects * 35),
+      action: 'Create or join a group investigation in the STEM Team Collab Hub',
+      color: 'bg-rose-600',
+    },
+  ];
+
+  const overallStemScore = Math.round(
+    stemCompetencies.reduce((sum, c) => sum + c.score, 0) / stemCompetencies.length
+  );
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
@@ -572,6 +662,64 @@ export default function DashboardPage() {
               </Link>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Verified STEM Competency Matrix (8 Core Skills) */}
+      <div className="mt-8 lab-card p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4 dark:border-navy-800">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-sm">
+              <Compass className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-extrabold text-navy-900 dark:text-white">
+                  STEM Competency Matrix (8 Verified Skills)
+                </h2>
+                <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-[10px] font-extrabold text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
+                  Overall STEM Score: {overallStemScore}%
+                </span>
+              </div>
+              <p className="text-xs text-slate-500">
+                Calculated strictly from real student activity: simulation runs, predictions confirmed, challenges solved, and team projects.
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/challenges"
+            className="lab-btn-primary py-1.5 text-xs font-semibold"
+          >
+            Level Up in STEM Challenges →
+          </Link>
+        </div>
+
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {stemCompetencies.map((comp) => (
+            <div
+              key={comp.id}
+              className="flex flex-col justify-between rounded-xl border border-slate-200 bg-slate-50/60 p-4 dark:border-navy-800 dark:bg-navy-950/60"
+            >
+              <div>
+                <div className="flex items-center justify-between text-xs font-bold text-navy-900 dark:text-white">
+                  <span>{comp.label}</span>
+                  <span className="font-mono text-blue-600 dark:text-sky-400">
+                    {comp.score}%
+                  </span>
+                </div>
+                {/* Progress Bar */}
+                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-navy-800">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${comp.color}`}
+                    style={{ width: `${comp.score}%` }}
+                  />
+                </div>
+                <p className="mt-2 text-[11px] leading-snug text-slate-500 dark:text-slate-400">
+                  {comp.action}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

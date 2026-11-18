@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFF1F2"/>
+      <stop offset="100%" stop-color="#FFE4E6"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg)" rx="12"/>
+  <text x="320" y="28" text-anchor="middle" font-size="18" font-weight="800" fill="#9F1239">Human Circulatory System</text>
+  <!-- HEART (center) -->
+  <path d="M270,180 Q255,155 268,140 Q280,125 295,140 Q308,152 310,160 Q312,152 325,140 Q340,125 352,140 Q365,155 350,180 Q335,205 310,228 Q285,205 270,180 Z" fill="#EF4444" stroke="#B91C1C" stroke-width="3"/>
+  <text x="310" y="185" text-anchor="middle" font-size="12" font-weight="800" fill="white">HEART</text>
+  <!-- Heart chambers labels -->
+  <text x="288" y="168" text-anchor="middle" font-size="8" fill="white">RA</text>
+  <text x="332" y="168" text-anchor="middle" font-size="8" fill="white">LA</text>
+  <text x="293" y="200" text-anchor="middle" font-size="8" fill="white">RV</text>
+  <text x="327" y="200" text-anchor="middle" font-size="8" fill="white">LV</text>
+  <line x1="310" y1="145" x2="310" y2="220" stroke="white" stroke-width="1.5"/>
+  <!-- Pulmonary circulation (lungs — oxygenation) -->
+  <!-- To lungs (deoxygenated - blue) -->
+  <path d="M295,145 Q285,100 240,90 Q200,82 185,105" fill="none" stroke="#3B82F6" stroke-width="3.5" stroke-linecap="round"/>
+  <polygon points="181,99 182,114 194,106" fill="#3B82F6"/>
+  <!-- Lungs -->
+  <ellipse cx="168" cy="130" rx="38" ry="40" fill="#FB7185" fill-opacity="0.7" stroke="#BE123C" stroke-width="2"/>
+  <text x="168" y="128" text-anchor="middle" font-size="10" font-weight="700" fill="#9F1239">LEFT</text>
+  <text x="168" y="142" text-anchor="middle" font-size="10" font-weight="700" fill="#9F1239">LUNG</text>
+  <ellipse cx="452" cy="130" rx="38" ry="40" fill="#FB7185" fill-opacity="0.7" stroke="#BE123C" stroke-width="2"/>
+  <text x="452" y="128" text-anchor="middle" font-size="10" font-weight="700" fill="#9F1239">RIGHT</text>
+  <text x="452" y="142" text-anchor="middle" font-size="10" font-weight="700" fill="#9F1239">LUNG</text>
+  <!-- From lungs (oxygenated - red) -->
+  <path d="M205,105 Q245,80 268,100 Q278,115 282,140" fill="none" stroke="#EF4444" stroke-width="3.5" stroke-linecap="round"/>
+  <polygon points="278,138 282,153 290,138" fill="#EF4444"/>
+  <!-- Right lung to right of heart -->
+  <path d="M325,145 Q335,100 380,90 Q420,82 435,105" fill="none" stroke="#3B82F6" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M415,105 Q435,80 352,100 Q342,115 338,140" fill="none" stroke="#EF4444" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Systemic circulation (body) -->
+  <!-- Aorta / upper body -->
+  <path d="M310,135 Q310,55 310,45" fill="none" stroke="#EF4444" stroke-width="4"/>
+  <text x="316" y="52" font-size="10" font-weight="700" fill="#B91C1C">Head &amp; Arms</text>
+  <!-- Vena cava from upper -->
+  <path d="M295,135 Q285,55 285,45" fill="none" stroke="#3B82F6" stroke-width="4"/>
+  <!-- Lower body -->
+  <path d="M325,228 Q325,320 325,370" fill="none" stroke="#EF4444" stroke-width="4"/>
+  <text x="332" y="368" font-size="10" font-weight="700" fill="#B91C1C">Lower Body</text>
+  <path d="M295,228 Q295,320 295,370" fill="none" stroke="#3B82F6" stroke-width="4"/>
+  <!-- Legend -->
+  <rect x="488" y="52" width="140" height="288" rx="10" fill="white" fill-opacity="0.9" stroke="#FECDD3" stroke-width="1.5"/>
+  <text x="558" y="74" text-anchor="middle" font-size="11" font-weight="800" fill="#9F1239">Blood Circulation</text>
+  <line x1="502" y1="94" x2="522" y2="94" stroke="#EF4444" stroke-width="3"/>
+  <text x="558" y="98" text-anchor="middle" font-size="10" fill="#374151">Oxygenated (red)</text>
+  <line x1="502" y1="114" x2="522" y2="114" stroke="#3B82F6" stroke-width="3"/>
+  <text x="558" y="118" text-anchor="middle" font-size="10" fill="#374151">Deoxygenated (blue)</text>
+  <text x="558" y="148" text-anchor="middle" font-size="11" font-weight="700" fill="#9F1239">Double Circulation</text>
+  <text x="558" y="168" text-anchor="middle" font-size="10" fill="#374151">1. Pulmonary:</text>
+  <text x="558" y="184" text-anchor="middle" font-size="10" fill="#374151">Heart → Lungs → Heart</text>
+  <text x="558" y="204" text-anchor="middle" font-size="10" fill="#374151">2. Systemic:</text>
+  <text x="558" y="220" text-anchor="middle" font-size="10" fill="#374151">Heart → Body → Heart</text>
+  <text x="558" y="252" text-anchor="middle" font-size="11" font-weight="700" fill="#9F1239">Heart Rate</text>
+  <text x="558" y="272" text-anchor="middle" font-size="10" fill="#374151">~70 beats/min</text>
+  <text x="558" y="292" text-anchor="middle" font-size="10" fill="#374151">BP: 120/80 mmHg</text>
+  <text x="558" y="315" text-anchor="middle" font-size="12" font-weight="700" fill="#9F1239">Cardiac Output</text>
+  <text x="558" y="332" text-anchor="middle" font-size="12" font-weight="700" fill="#B91C1C">CO = HR × SV</text>
+</svg>

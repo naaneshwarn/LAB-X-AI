@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFF7ED"/>
+      <stop offset="100%" stop-color="#FFEDD5"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg)" rx="12"/>
+  <text x="320" y="28" text-anchor="middle" font-size="18" font-weight="800" fill="#C2410C">Gas Laws &amp; Real Gas Deviation</text>
+  <!-- Boyle's law (P vs V) graph -->
+  <rect x="20" y="52" width="175" height="150" rx="10" fill="white" fill-opacity="0.9" stroke="#FED7AA" stroke-width="1.5"/>
+  <text x="108" y="72" text-anchor="middle" font-size="11" font-weight="700" fill="#C2410C">Boyle's Law (P∝1/V)</text>
+  <line x1="36" y1="192" x2="178" y2="192" stroke="#374151" stroke-width="1.5"/>
+  <line x1="36" y1="82" x2="36" y2="196" stroke="#374151" stroke-width="1.5"/>
+  <path d="M44,88 Q60,100 80,120 Q100,142 120,160 Q140,175 170,188" fill="none" stroke="#EA580C" stroke-width="2.5"/>
+  <text x="140" y="122" font-size="10" fill="#EA580C">P·V = const</text>
+  <text x="108" y="204" text-anchor="middle" font-size="9" fill="#374151">Volume (V) →</text>
+  <!-- Charles' law (V vs T) graph -->
+  <rect x="232" y="52" width="175" height="150" rx="10" fill="white" fill-opacity="0.9" stroke="#FED7AA" stroke-width="1.5"/>
+  <text x="320" y="72" text-anchor="middle" font-size="11" font-weight="700" fill="#C2410C">Charles' Law (V∝T)</text>
+  <line x1="248" y1="192" x2="390" y2="192" stroke="#374151" stroke-width="1.5"/>
+  <line x1="248" y1="82" x2="248" y2="196" stroke="#374151" stroke-width="1.5"/>
+  <path d="M252,190 L290,165 L330,138 L370,110 L385,100" fill="none" stroke="#2563EB" stroke-width="2.5"/>
+  <text x="310" y="175" font-size="10" fill="#2563EB">V/T = const</text>
+  <text x="320" y="204" text-anchor="middle" font-size="9" fill="#374151">Temperature (K) →</text>
+  <!-- Ideal Gas Law box -->
+  <rect x="444" y="52" width="175" height="150" rx="10" fill="#EA580C"/>
+  <text x="532" y="78" text-anchor="middle" font-size="12" font-weight="800" fill="white">Ideal Gas Law</text>
+  <text x="532" y="102" text-anchor="middle" font-size="18" font-weight="800" fill="#FEF3C7">PV = nRT</text>
+  <text x="532" y="126" text-anchor="middle" font-size="10" fill="#FED7AA">P = pressure (Pa)</text>
+  <text x="532" y="142" text-anchor="middle" font-size="10" fill="#FED7AA">V = volume (m³)</text>
+  <text x="532" y="158" text-anchor="middle" font-size="10" fill="#FED7AA">n = moles (mol)</text>
+  <text x="532" y="174" text-anchor="middle" font-size="10" fill="#FED7AA">R = 8.314 J/mol·K</text>
+  <text x="532" y="192" text-anchor="middle" font-size="10" fill="#FEF3C7">T = temperature (K)</text>
+  <!-- Piston diagram -->
+  <rect x="80" y="235" width="200" height="130" rx="8" fill="#E2E8F0" stroke="#94A3B8" stroke-width="2"/>
+  <rect x="82" y="237" width="196" height="12" rx="4" fill="#94A3B8"/>
+  <rect x="82" y="299" width="196" height="12" rx="4" fill="#475569"/>
+  <rect x="168" y="249" width="44" height="52" rx="4" fill="#CBD5E1" stroke="#64748B" stroke-width="1.5"/>
+  <line x1="190" y1="249" x2="190" y2="210" stroke="#374151" stroke-width="4"/>
+  <polygon points="182,210 190,194 198,210" fill="#374151"/>
+  <text x="180" y="340" text-anchor="middle" font-size="10" fill="#374151">Gas piston</text>
+  <!-- Van der Waals -->
+  <rect x="318" y="225" width="300" height="150" rx="12" fill="white" fill-opacity="0.88" stroke="#FED7AA" stroke-width="1.5"/>
+  <text x="468" y="250" text-anchor="middle" font-size="12" font-weight="700" fill="#C2410C">Van der Waals (Real Gas)</text>
+  <text x="468" y="274" text-anchor="middle" font-size="12" font-weight="800" fill="#EA580C">(P + an²/V²)(V − nb) = nRT</text>
+  <text x="468" y="298" text-anchor="middle" font-size="10" fill="#374151">a = intermolecular attraction</text>
+  <text x="468" y="316" text-anchor="middle" font-size="10" fill="#374151">b = excluded volume</text>
+  <text x="468" y="338" text-anchor="middle" font-size="10" fill="#374151">Real gases deviate from ideal at high P, low T</text>
+  <text x="468" y="360" text-anchor="middle" font-size="10" fill="#D97706">CO₂: a=3.59, b=0.0427</text>
+</svg>
