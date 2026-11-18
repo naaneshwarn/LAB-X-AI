@@ -1,4 +1,4 @@
-"""Quiz listing, question retrieval, and graded submission endpoints."""
+"""Quiz listing, question retrieval, and deterministic graded submission endpoints."""
 
 import sqlite3
 
@@ -14,9 +14,13 @@ router = APIRouter()
 @router.get("/quizzes", response_model=list[QuizSummary])
 def list_quizzes(
     experiment_id: str | None = Query(default=None, description="Filter quizzes by experiment ID"),
+    subject: str | None = Query(default=None, description="Filter quizzes by subject"),
+    difficulty: str | None = Query(default=None, description="Filter quizzes by difficulty"),
     db: sqlite3.Connection = Depends(get_db),
 ) -> list[QuizSummary]:
-    return quiz_service.list_quizzes(db, experiment_id=experiment_id)
+    return quiz_service.list_quizzes(
+        db, experiment_id=experiment_id, subject=subject, difficulty=difficulty
+    )
 
 
 @router.get("/quizzes/{quiz_id}", response_model=QuizDetail)

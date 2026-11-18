@@ -1,4 +1,4 @@
-"""Experiment catalog and deterministic simulation endpoints."""
+"""Subjects, multidisciplinary experiment catalog, and deterministic simulation endpoints."""
 
 import sqlite3
 
@@ -10,17 +10,24 @@ from app.schemas.experiments import (
     ExperimentSummary,
     SimulationRequest,
     SimulationResponse,
+    SubjectSummary,
 )
 from app.services import experiment_service
+from app.services.result_explanation_service import localize_validation_error
 from app.services.simulation_engine import SimulationValidationError
 
 router = APIRouter()
 
 
+@router.get("/subjects", response_model=list[SubjectSummary])
+def list_subjects(db: sqlite3.Connection = Depends(get_db)) -> list[SubjectSummary]:
+    return experiment_service.list_subjects(db)
+
+
 @router.get("/experiments", response_model=list[ExperimentSummary])
 def list_experiments(
-    subject: str | None = Query(default=None, description="Filter by subject"),
-    difficulty: str | None = Query(default=None, description="Filter by difficulty"),
+    subject: str | None = Query(default=None, description="Filter by subject or discipline"),
+    difficulty: str | None = Query(default=None, description="Filter by difficulty (Basic, Intermediate, Advanced)"),
     search: str | None = Query(default=None, description="Keyword search"),
     db: sqlite3.Connection = Depends(get_db),
 ) -> list[ExperimentSummary]:
@@ -43,18 +50,19 @@ def get_experiment(
 
 
 @router.post("/experiments/{experiment_id}/simulate", response_model=SimulationResponse)
-def simulate_experiment(
+async def simulate_experiment(
     experiment_id: str,
     payload: SimulationRequest,
     db: sqlite3.Connection = Depends(get_db),
 ) -> SimulationResponse:
     try:
-        return experiment_service.execute_experiment_simulation(db, experiment_id, payload)
+        return await experiment_service.execute_experiment_simulation(db, experiment_id, payload)
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     except (SimulationValidationError, ValueError) as exc:
+        localized_err = localize_validation_error(str(exc), payload.language)
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=localized_err
         ) from exc
     except KeyError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc

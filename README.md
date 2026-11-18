@@ -1,27 +1,52 @@
-# LabXAI — AI-Powered Interactive Virtual Science Laboratory
+# LabXAI — AI-Powered Multidisciplinary Interactive Virtual Laboratory
 
-LabXAI is an integrated full-stack educational platform that enables students to perform deterministic virtual physics experiments, inspect live graphs and instrumentation, interact with a context-aware AI science tutor, take assessments, and track learning progress in **English** and **Kannada (ಕನ್ನಡ)**.
+LabXAI is an integrated full-stack educational platform that enables students to explore **4 academic disciplines** (**Physics, Chemistry, Biology, and Mathematics**), perform **48 scientifically deterministic virtual experiments** across **Basic, Intermediate, and Advanced** levels, watch **verified educational videos**, interact with a **context-aware AI tutor**, take **conceptual and numerical quizzes**, and learn with **multilingual text & voice translation** across **English, Kannada, Hindi, Telugu, and Tamil**.
 
 ---
 
 ## Core Features
 
-- **Four Scientifically Deterministic Virtual Experiments**:
-  1. **Ohm's Law (`ohms-law`)** — Interactive DC circuit schematic (battery, resistor, series ammeter, parallel voltmeter), live `V = I × R` and `P = V × I` calculations, V–I graph, zero-resistance safety guard.
-  2. **Simple Pendulum (`simple-pendulum`)** — Animated pendulum with stopwatch, Earth/Moon/Mars gravity presets, `T = 2π√(L/g)`, frequency, total time for N oscillations, and explicit 4th-order large-angle deviation analysis.
-  3. **Projectile Motion (`projectile-motion`)** — Animated 2D parabolic trajectory with live velocity component vectors (`vx`, `vy`), apex height, horizontal range, flight time, and trajectory plot (under documented negligible-air-resistance assumptions).
-  4. **Convex Lens Optics (`convex-lens`)** — Thin-lens ray diagram using the New Cartesian Sign Convention (`1/f = 1/v − 1/u`), real/virtual & upright/inverted classification, magnification, optical power in Diopters, and clean singularity handling when `|u| = f` (image at infinity).
-- **Context-Aware AI Science Tutor (OpenRouter + Graceful Fallback)**:
-  - Server-side OpenRouter integration via HTTPX (`POST /api/v1/ai/explain`, `POST /api/v1/ai/chat`).
-  - Uses deterministic simulation measurements as the sole source of scientific truth.
-  - Automatically falls back to a clearly labeled deterministic explanation engine if `OPENROUTER_API_KEY` is missing or the upstream model is unavailable.
-- **Multilingual & Audio Accessibility**:
-  - Reviewed English (`en`) and Kannada (`kn`) UI dictionaries, bilingual experiment instructions, bilingual quizzes, and language-aware AI prompts.
-  - Extensible language registry prepared for Hindi (`hi`), Telugu (`te`), and Tamil (`ta`) via future AI4Bharat IndicTrans2 & Indic-TTS integration.
-  - Optional browser `SpeechSynthesis` narration controls (Play, Pause, Resume, Stop, voice selector).
-- **Quizzes, Student Dashboard & Learning History**:
-  - 4 seeded quizzes (5 questions each, 20 questions total) with instant grading and answer explanations.
-  - SQLite persistence (`backend/labxai.db`) storing demo student profile, saved simulation runs, quiz attempts, and chronological learning activity.
+### 1. Four Academic Disciplines & 48 Deterministic Virtual Labs
+Every discipline includes **12 validated virtual experiments** (4 Basic, 4 Intermediate, 4 Advanced), separated into deterministic backend and client calculation modules with live Recharts graphs, interactive visualizers, safety/model disclaimers, observation tables, and SQLite persistence:
+
+- **Physics (Blue — 12 Labs)**
+  - *Basic:* Ohm's Law (`ohms-law`), Simple Pendulum (`simple-pendulum`), Reflection of Light (`reflection-of-light`), Refraction of Light (`refraction-of-light`)
+  - *Intermediate:* Projectile Motion (`projectile-motion`), Convex Lens Optics (`convex-lens`), Series & Parallel Circuits (`series-parallel-circuits`), Newton's Laws of Motion (`newtons-laws`)
+  - *Advanced:* Electromagnetic Induction (`electromagnetic-induction`), Wave Interference & Diffraction (`wave-interference`), Thermodynamic Processes (`thermodynamic-processes`), Photoelectric Effect (`photoelectric-effect`)
+- **Chemistry (Purple — 12 Labs)**
+  - *Basic:* Atomic Structure (`atomic-structure`), Periodic Table Explorer (`periodic-table-explorer`), Acids & Bases – pH Scale (`acids-bases-ph`), States of Matter (`states-of-matter`)
+  - *Intermediate:* Chemical Reaction Balancing (`reaction-balancing`), Mole Concept & Stoichiometry (`mole-stoichiometry`), Chemical Bonding (`chemical-bonding`), Concentration & Dilution (`concentration-dilution`)
+  - *Advanced:* Chemical Equilibrium (`chemical-equilibrium`), Electrochemical Cells (`electrochemical-cells`), Reaction Kinetics (`reaction-kinetics`), Gas Laws & Thermodynamics (`gas-laws-thermodynamics`)
+  - *Safety:* All Chemistry labs are strictly virtual models and never provide dangerous home-experiment instructions.
+- **Biology (Green — 12 Labs)**
+  - *Basic:* Plant Cell Structure (`plant-cell-structure`), Animal Cell Structure (`animal-cell-structure`), Human Digestive System (`human-digestive-system`), Photosynthesis (`photosynthesis`)
+  - *Intermediate:* Mitosis & Meiosis (`mitosis-meiosis`), DNA Structure & Replication (`dna-structure-replication`), Human Circulatory System (`human-circulatory-system`), Food Chain & Ecosystem (`food-chain-ecosystem`)
+  - *Advanced:* Mendelian Genetics (`mendelian-genetics`), Natural Selection & Evolution (`natural-selection-evolution`), Cellular Respiration (`cellular-respiration`), Population Genetics (`population-genetics`)
+- **Mathematics (Orange — 12 Labs)**
+  - *Basic:* Number Systems (`number-systems`), Fractions & Decimals (`fractions-decimals`), Basic Geometry (`basic-geometry`), Algebraic Expressions (`algebraic-expressions`)
+  - *Intermediate:* Trigonometric Functions (`trigonometric-functions`), Coordinate Geometry (`coordinate-geometry`), Probability & Statistics (`probability-statistics`), Quadratic Equations (`quadratic-equations`)
+  - *Advanced:* Differential Calculus (`differential-calculus`), Integral Calculus (`integral-calculus`), Matrices & Linear Algebra (`matrices-linear-algebra`), Three-Dimensional Geometry (`three-dimensional-geometry`)
+
+### 2. Multilingual Text Translation, Dynamic Result Explanations & Voice Interaction (5 Languages)
+- **Active Languages:** English (`en`), Kannada (`kn`), Hindi (`hi`), Telugu (`te`), and Tamil (`ta`).
+- **Localized Experiment Result Explanations (`POST /api/v1/experiments/{id}/simulate`):** Deterministic calculations always produce exact numerical results and SI units, then `result_explanation_service.py` generates localized Result Summary, Scientific Observations, Formula Explanation, Scientific Interpretation, Conclusion, Real-World Applications, and validation errors in the student's selected language without resetting simulation parameters. If translation fails, an explicit notice and separate English original toggle are displayed.
+- **Formula-Safe Translation (`POST /api/v1/translate`):** Preserves chemical formulas, mathematical equations, and SI units via placeholder tokenization, caches translations in SQLite (`translations_cache`) keyed by `(content_version, source_lang, target_lang, source_hash)`, and uses OpenRouter when configured or a transparent fallback offline.
+- **Voice Input, Output & Voice Translation:**
+  - Speech-to-Text (`Web SpeechRecognition`) in `en-IN`, `kn-IN`, `hi-IN`, `te-IN`, and `ta-IN` with visible Original Speech vs. Translated Text comparison in the AI Tutor.
+  - Text-to-Speech (`Web SpeechSynthesis`) with Play, Pause, Resume, Stop, Replay, live progress indicator, and `0.75x–1.5x` playback speed selector.
+  - *Browser Note:* Voice Input works best in Chrome/Edge over `localhost` or HTTPS and depends on OS-installed speech voices. Full text input and translation work in all browsers.
+
+### 3. Verified Educational Video Library
+- **38 curated, link-verified educational resources** (34 oEmbed-verified embeddable YouTube videos from CrashCourse, 3Blue1Brown, Khan Academy, Khan Academy India, The Organic Chemistry Tutor, Cognito Academy, Najam Academy, and Teacher's Pet, plus 4 official Khan Academy portal links).
+- Lightweight lazy-loaded thumbnails (YouTube iframes load only on click) with topic/subject/difficulty filters, transcript summaries, and direct mapping to LabXAI experiments.
+
+### 4. Context-Aware AI Tutor (Server-Side OpenRouter + Deterministic Fallback)
+- Supports 4 tutoring modes (`explain`, `hint`, `practice`, `simplify`) grounded strictly in the student's active experiment, parameters, and deterministic calculations.
+- Never exposes API keys in the frontend; automatically falls back to a clearly labeled deterministic tutor if `OPENROUTER_API_KEY` is missing or rate-limited.
+
+### 5. Multidisciplinary Quizzes, Subject-Wise Dashboard & Progress Reports
+- **48 seeded quizzes** supporting Multiple Choice (`mcq`), True/False (`true_false`), Formula (`formula`), and tolerance-checked Numerical (`numerical`) questions.
+- **SQLite Persistence (`backend/labxai.db`):** Safe non-destructive schema migrations (`subjects`, `videos`, `translations_cache`, `learning_sessions`) tracking real subject-wise completion, learning streak, time spent, derived learning level, saved observations, and printable progress reports.
 
 ---
 
@@ -29,19 +54,19 @@ LabXAI is an integrated full-stack educational platform that enables students to
 
 | Developer | Ownership | Primary Directories |
 |---|---|---|
-| **Naaneshwar** | Team Lead, FastAPI Backend, OpenRouter AI, SQLite DB, GitHub Integration | `backend/app/main.py`, `backend/app/core/`, `backend/app/database/`, `backend/app/services/openrouter_service.py`, `backend/app/api/routes/` |
-| **Rajath** | React Frontend, Dashboard, Library, Interactive Simulations, Recharts | `frontend/src/pages/`, `frontend/src/simulations/`, `frontend/src/api/`, `frontend/src/components/` |
-| **Janith** | Multilingual (English & Kannada), Narration, Quizzes & Learning Content | `frontend/src/i18n/`, `frontend/src/services/narration.js`, `backend/app/database/seed_data.py`, `backend/app/services/language_service.py` |
+| **Naaneshwar** | Team Lead, FastAPI Backend, OpenRouter AI, SQLite DB & Migrations, GitHub Integration | `backend/app/main.py`, `backend/app/core/`, `backend/app/database/`, `backend/app/services/`, `backend/app/api/routes/` |
+| **Rajath** | React Frontend, Subject Dashboard, 48 Interactive Simulations, Visualizers, Recharts | `frontend/src/pages/`, `frontend/src/simulations/`, `frontend/src/api/`, `frontend/src/components/` |
+| **Janith** | Multilingual (EN/KN/HI/TE/TA), Voice Input/Output, Quizzes & Educational Content | `frontend/src/i18n/`, `frontend/src/services/`, `multilingual/`, `speech/`, `backend/app/database/quizzes_data.py`, `backend/app/services/language_service.py` |
 
-See [`docs/API_CONTRACTS.md`](docs/API_CONTRACTS.md) for complete API request/response schemas and module boundaries.
+See [`docs/API_CONTRACTS.md`](docs/API_CONTRACTS.md) and [`docs/architecture/README.md`](docs/architecture/README.md) for complete API schemas and architecture boundaries.
 
 ---
 
-## Prerequisites (Windows — No Docker or Ollama Required)
+## Prerequisites (Windows — No Docker or Local LLM Required)
 
-- **Python 3.11+** (existing virtual environment at `backend/.venv`)
+- **Python 3.11+** (tested on Python 3.14 via `backend/.venv`)
 - **Node.js 18+** and **npm**
-- Optional: An **OpenRouter API key** (the full virtual lab, simulations, quizzes, dashboard, and offline deterministic tutor work even without one).
+- Optional: An **OpenRouter API key** (all 48 simulations, 48 quizzes, video library, dashboard, translation fallback, and deterministic offline tutor work without an API key).
 
 ---
 
@@ -49,13 +74,11 @@ See [`docs/API_CONTRACTS.md`](docs/API_CONTRACTS.md) for complete API request/re
 
 ### 1. Configure Backend Environment
 
-Copy `backend/.env.example` to `backend/.env`:
-
 ```cmd
 copy backend\.env.example backend\.env
 ```
 
-Edit `backend/.env` with your configuration (never commit `.env` to Git):
+Edit `backend/.env` (never commit `.env` to Git):
 
 ```env
 APP_NAME=LabXAI
@@ -68,9 +91,7 @@ OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 OPENROUTER_TIMEOUT_SECONDS=30
 ```
 
-> **Changing the AI model:** Update `OPENROUTER_MODEL` in `backend/.env` and restart the backend — no code changes required. LabXAI will never silently switch to a paid model.
-
-### 2. Install Backend Dependencies (Using Existing `.venv`)
+### 2. Install Backend Dependencies
 
 ```cmd
 backend\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
@@ -82,22 +103,15 @@ backend\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
 npm.cmd --prefix frontend install
 ```
 
-*(Note: Using `npm.cmd` avoids Windows PowerShell script execution policy restrictions on `npm.ps1`.)*
+*(Using `npm.cmd` avoids Windows PowerShell execution policy restrictions on `npm.ps1`.)*
 
 ---
 
 ## Running Locally on Windows
 
 ### Option A: One-Click Scripts
-
-- **Start Backend (FastAPI on `http://127.0.0.1:8000`)**:
-  ```cmd
-  scripts\start-backend.bat
-  ```
-- **Start Frontend (Vite on `http://127.0.0.1:5173`)**:
-  ```cmd
-  scripts\start-frontend.bat
-  ```
+- Backend (`http://127.0.0.1:8000`): `scripts\start-backend.bat`
+- Frontend (`http://127.0.0.1:5173`): `scripts\start-frontend.bat`
 
 ### Option B: Manual Commands
 
@@ -106,7 +120,7 @@ npm.cmd --prefix frontend install
 cd backend
 .venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
-The SQLite database (`backend/labxai.db`) initializes and seeds automatically on first startup without overwriting existing data.
+SQLite (`backend/labxai.db`) automatically applies non-destructive migrations and idempotent seeding on startup.
 
 **Terminal 2 — React Frontend:**
 ```cmd
@@ -120,20 +134,12 @@ Open `http://127.0.0.1:5173` in your browser. Interactive Swagger API docs are a
 
 ## Automated Testing
 
-### Backend & Scientific Formula Tests (`pytest`)
-
+### Backend Unit, Scientific Formula, Multilingual, Local AI & Regional TTS Tests (102 tests)
 ```cmd
-backend\.venv\Scripts\pytest.exe -c backend\pytest.ini backend\tests -v
+backend\.venv\Scripts\pytest.exe backend\tests -v
 ```
 
-Tests verify:
-- Preserved endpoints (`GET /`, `GET /health`, `GET /api/v1`)
-- All versioned `/api/v1/*` endpoints and SQLite persistence
-- Deterministic physics formulas for all 4 experiments (including edge cases like `R = 0` and convex lens `|u| = f`)
-- OpenRouter integration using mocked HTTP responses (401, 402, 404, 429, 503, timeouts, missing API key) without spending API quota
-
-### Frontend Physics Tests & Production Build
-
+### Frontend Simulation & Localization Tests (13 tests) & Production Build
 ```cmd
 npm.cmd --prefix frontend test
 npm.cmd --prefix frontend run build
@@ -143,15 +149,7 @@ npm.cmd --prefix frontend run build
 
 ## Troubleshooting
 
-- **`npm.ps1 cannot be loaded because running scripts is disabled`**: Use `npm.cmd` instead of `npm` in PowerShell, or run via `cmd.exe`.
-- **AI Tutor shows "Deterministic Offline Tutor Mode"**: Set a valid `OPENROUTER_API_KEY` in `backend/.env` and restart Uvicorn. If the configured free model is temporarily unavailable or rate-limited, update `OPENROUTER_MODEL` in `backend/.env`.
-- **Kannada voice unavailable in browser**: Install the Windows/Chrome Kannada language speech pack, or continue reading Kannada text explanations while using the default voice.
-- **SQLite database**: Stored locally at `backend/labxai.db` (excluded from Git via `.gitignore`). Delete it only if you intentionally want a clean reset of demo student history.
-
----
-
-## Git Workflow
-
-- Active development branch: `feature/backend-ai`
-- Never commit `.env`, API keys, `.venv/`, `node_modules/`, `dist/`, or `*.db`.
-- Always run backend tests (`pytest`) and frontend build (`npm.cmd run build`) before pushing.
+- **`npm.ps1 cannot be loaded because running scripts is disabled`**: Use `npm.cmd` instead of `npm` in PowerShell.
+- **AI Tutor shows "Deterministic Offline Tutor Mode"**: Set a valid `OPENROUTER_API_KEY` in `backend/.env` and restart Uvicorn.
+- **Voice Input / Regional Voices**: Use Chrome or Edge for Web SpeechRecognition; install Windows language speech packs for regional TTS voices (Kannada, Hindi, Telugu, Tamil).
+- **SQLite database**: Stored locally at `backend/labxai.db` (excluded from Git). Migrations preserve existing student runs and quiz attempts automatically.

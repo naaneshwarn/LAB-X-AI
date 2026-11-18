@@ -1,18 +1,33 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { CheckCircle2, Clock, FlaskConical, Search } from 'lucide-react';
 import { labApi } from '../api/client';
 import { useApp } from '../context/AppContext';
+import { getLocalizedField, SUBJECT_COLORS } from '../i18n/translations';
+import VoiceInputButton from '../components/VoiceInputButton';
+import PageHeader from '../components/ui/PageHeader';
 import { Badge, EmptyState, ErrorState, LoadingState } from '../components/StatusStates';
+
+const DISCIPLINES = ['all', 'Physics', 'Chemistry', 'Biology', 'Mathematics'];
+const DIFFICULTIES = ['all', 'Basic', 'Intermediate', 'Advanced'];
 
 export default function LibraryPage() {
   const { language, t } = useApp();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [experiments, setExperiments] = useState([]);
-  const [search, setSearch] = useState('');
-  const [subject, setSubject] = useState('all');
-  const [difficulty, setDifficulty] = useState('all');
+  const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [subject, setSubject] = useState(searchParams.get('subject') || 'all');
+  const [difficulty, setDifficulty] = useState(searchParams.get('difficulty') || 'all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const paramSub = searchParams.get('subject');
+    const paramDiff = searchParams.get('difficulty');
+    if (paramSub) setSubject(paramSub);
+    if (paramDiff) setDifficulty(paramDiff);
+  }, [searchParams]);
 
   const loadExperiments = useCallback(async () => {
     setLoading(true);
@@ -28,56 +43,78 @@ export default function LibraryPage() {
   }, [subject, difficulty, search]);
 
   useEffect(() => {
-    const timer = setTimeout(loadExperiments, 160);
+    const timer = setTimeout(loadExperiments, 140);
     return () => clearTimeout(timer);
   }, [loadExperiments]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-extrabold text-navy-900 dark:text-white sm:text-3xl">
-          {t('library.title')}
-        </h1>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{t('library.subtitle')}</p>
+      <PageHeader
+        breadcrumbs={[
+          { label: 'Home', to: '/' },
+          { label: subject === 'all' ? 'Experiments' : `${subject} Lab` },
+        ]}
+        title={subject === 'all' ? t('library.title') : `${subject} Virtual Laboratory`}
+        subtitle={t('library.subtitle')}
+        rightSlot={
+          <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 font-mono text-xs font-extrabold text-blue-700 dark:border-blue-800 dark:bg-blue-950/50 dark:text-sky-300">
+            {experiments.length} experiments
+          </span>
+        }
+      />
+
+      {/* Discipline Quick Tabs */}
+      <div className="mb-4 flex flex-wrap gap-2">
+        {DISCIPLINES.map((disc) => (
+          <button
+            key={disc}
+            type="button"
+            onClick={() => setSubject(disc)}
+            className={`rounded-lg px-3.5 py-2 text-xs font-bold transition ${
+              subject.toLowerCase() === disc.toLowerCase()
+                ? 'bg-navy-900 text-white shadow-sm dark:bg-blue-600'
+                : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-navy-700 dark:bg-navy-900 dark:text-slate-300'
+            }`}
+          >
+            {disc === 'all' ? t('library.allSubjects') : disc}
+          </button>
+        ))}
       </div>
 
-      {/* Search & Filters */}
+      {/* Search (with Voice) + Difficulty Filter */}
       <div className="lab-card mb-8 grid gap-3 p-4 sm:grid-cols-12">
-        <div className="relative sm:col-span-6">
-          <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t('library.searchPlaceholder')}
-            className="lab-input pl-9"
+        <div className="flex items-center gap-2 sm:col-span-7">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t('library.searchPlaceholder')}
+              className="lab-input pl-9"
+            />
+          </div>
+          <VoiceInputButton
+            size="sm"
+            onTranscript={(txt) => setSearch(txt)}
+            title="Voice search experiments"
           />
         </div>
-        <div className="sm:col-span-3">
-          <select
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            className="lab-input"
-            aria-label="Filter by subject"
-          >
-            <option value="all">{t('library.allSubjects')}</option>
-            <option value="Electricity">Physics - Electricity</option>
-            <option value="Mechanics">Physics - Mechanics</option>
-            <option value="Kinematics">Physics - Kinematics</option>
-            <option value="Optics">Physics - Optics</option>
-          </select>
-        </div>
-        <div className="sm:col-span-3">
-          <select
-            value={difficulty}
-            onChange={(e) => setDifficulty(e.target.value)}
-            className="lab-input"
-            aria-label="Filter by difficulty"
-          >
-            <option value="all">{t('library.allDifficulties')}</option>
-            <option value="Beginner">Beginner</option>
-            <option value="Intermediate">Intermediate</option>
-          </select>
+        <div className="flex flex-wrap items-center gap-1.5 sm:col-span-5 sm:justify-end">
+          {DIFFICULTIES.map((lvl) => (
+            <button
+              key={lvl}
+              type="button"
+              onClick={() => setDifficulty(lvl)}
+              className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
+                difficulty.toLowerCase() === lvl.toLowerCase()
+                  ? 'bg-blue-600 text-white'
+                  : 'border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 dark:border-navy-700 dark:bg-navy-950 dark:text-slate-300'
+              }`}
+            >
+              {lvl === 'all' ? t('library.allDifficulties') : lvl}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -95,6 +132,7 @@ export default function LibraryPage() {
                 setSearch('');
                 setSubject('all');
                 setDifficulty('all');
+                setSearchParams({});
               }}
               className="lab-btn-secondary text-xs"
             >
@@ -103,56 +141,62 @@ export default function LibraryPage() {
           }
         />
       ) : (
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {experiments.map((exp) => {
             const objectives = language === 'kn' ? exp.objectives_kn : exp.objectives;
+            const colors = SUBJECT_COLORS[exp.discipline] || SUBJECT_COLORS.Physics;
+            const diffBadge =
+              exp.difficulty === 'Basic' || exp.difficulty === 'Beginner'
+                ? 'emerald'
+                : exp.difficulty === 'Intermediate'
+                ? 'amber'
+                : 'rose';
+
             return (
-              <article key={exp.id} className="lab-card flex flex-col justify-between p-6">
+              <article
+                key={exp.id}
+                className={`lab-card-hover flex flex-col justify-between border-t-4 p-5 ${colors.border}`}
+              >
                 <div>
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <Badge variant="blue">{exp.subject}</Badge>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={exp.difficulty === 'Beginner' ? 'emerald' : 'violet'}>
-                        {exp.difficulty}
-                      </Badge>
-                      <span className="inline-flex items-center gap-1 text-xs text-slate-500">
-                        <Clock className="h-3.5 w-3.5" />
+                    <Badge variant={colors.badge}>{exp.discipline}</Badge>
+                    <div className="flex items-center gap-1.5">
+                      <Badge variant={diffBadge}>{exp.difficulty}</Badge>
+                      <span className="inline-flex items-center gap-1 text-[11px] text-slate-500">
+                        <Clock className="h-3 w-3" />
                         {exp.duration_minutes} {t('library.minutes')}
                       </span>
                     </div>
                   </div>
 
-                  <h2 className="mt-3 text-xl font-bold text-navy-900 dark:text-white">
-                    {language === 'kn' ? exp.title_kn : exp.title}
+                  <h2 className="mt-3 text-base font-bold text-navy-900 dark:text-white">
+                    {getLocalizedField(exp, 'title', language)}
                   </h2>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-                    {language === 'kn' ? exp.short_description_kn : exp.short_description}
+                  <p className="mt-1.5 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+                    {getLocalizedField(exp, 'short_description', language)}
                   </p>
 
-                  <div className="mt-4">
-                    <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                      {t('library.objectives')}
-                    </h3>
-                    <ul className="mt-2 space-y-1.5">
-                      {objectives.slice(0, 3).map((obj) => (
+                  {objectives?.length > 0 && (
+                    <ul className="mt-3 space-y-1">
+                      {objectives.slice(0, 2).map((obj) => (
                         <li
                           key={obj}
-                          className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300"
+                          className="flex items-start gap-1.5 text-[11px] text-slate-700 dark:text-slate-300"
                         >
-                          <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-600" />
-                          <span>{obj}</span>
+                          <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-blue-600" />
+                          <span className="line-clamp-2">{obj}</span>
                         </li>
                       ))}
                     </ul>
-                  </div>
+                  )}
                 </div>
 
-                <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4 dark:border-navy-800">
-                  <Link to={`/lab/${exp.id}`} className="lab-btn-primary">
-                    <FlaskConical className="h-4 w-4" />
+                <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3.5 dark:border-navy-800">
+                  <Link to={`/lab/${exp.id}`} className="lab-btn-primary flex-1 py-2 text-xs">
+                    <FlaskConical className="h-3.5 w-3.5" />
                     {t('library.startExperiment')}
                   </Link>
-                  <Link to={`/quizzes?experiment=${exp.id}`} className="lab-btn-secondary">
+                  <Link to={`/quizzes?experiment=${exp.id}`} className="lab-btn-secondary py-2 text-xs">
                     {t('dashboard.takeQuiz')}
                   </Link>
                 </div>

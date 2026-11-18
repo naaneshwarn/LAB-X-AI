@@ -21,13 +21,15 @@ __pycache__/
 .coverage
 htmlcov/
 
-# Databases
+# Databases & Generated Caches / Local Model Weights
 *.db
 *.sqlite
 *.sqlite3
 *.db-journal
 *.db-wal
 *.db-shm
+backend/tts_cache/
+*.gguf
 
 # Node / Frontend
 node_modules/

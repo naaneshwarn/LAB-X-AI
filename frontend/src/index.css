@@ -3,13 +3,19 @@
 @tailwind utilities;
 
 :root {
-  --color-navy-primary: #0f1d3d;
+  --color-navy-primary: #1e293b;
+  --color-accent-sky: #38bdf8;
   --color-accent-blue: #2563eb;
-  --color-accent-violet: #6d28d9;
+  --color-accent-green: #22c55e;
+  --color-accent-yellow: #facc15;
+  --color-accent-orange: #fb923c;
+  --color-accent-lavender: #a78bfa;
+  --color-accent-coral: #fb7185;
+  --color-accent-violet: #7c3aed;
   --color-surface: #f8fafc;
   --color-card: #ffffff;
   --color-border: #e2e8f0;
-  --color-text-primary: #0f172a;
+  --color-text-primary: #1e293b;
   --color-text-secondary: #475569;
 }
 
@@ -21,33 +27,79 @@
   --color-text-secondary: #94a3b8;
 }
 
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab-float,
+  .lab-float-delayed {
+    animation: none !important;
+  }
+}
+
+@keyframes labFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.lab-float {
+  animation: labFloat 5s ease-in-out infinite;
+}
+
+.lab-float-delayed {
+  animation: labFloat 6.2s ease-in-out 1.4s infinite;
+}
+
 @layer base {
   body {
     background-color: var(--color-surface);
     color: var(--color-text-primary);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+  }
 }
 
 @layer components {
   .lab-card {
-    @apply rounded-xl border border-slate-200 bg-white shadow-card dark:border-navy-800 dark:bg-navy-900;
+    @apply rounded-2xl border border-slate-200/90 bg-white shadow-card transition-all duration-200 dark:border-navy-800 dark:bg-navy-900;
+  }
+
+  .lab-card-hover {
+    @apply rounded-2xl border border-slate-200/90 bg-white shadow-card transition-all duration-200 hover:-translate-y-1 hover:border-sky-300 hover:shadow-elevated dark:border-navy-800 dark:bg-navy-900 dark:hover:border-blue-600/60;
   }
 
   .lab-input {
-    @apply w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20 dark:border-navy-700 dark:bg-navy-950 dark:text-slate-100;
+    @apply w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 transition focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20 dark:border-navy-700 dark:bg-navy-950 dark:text-slate-100;
   }
 
   .lab-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-navy-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-800 focus:outline-none focus:ring-2 focus:ring-blue-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-500;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition duration-150 hover:bg-blue-700 hover:shadow active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-500;
   }
 
   .lab-btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-600/30 disabled:cursor-not-allowed disabled:opacity-50 dark:border-navy-700 dark:bg-navy-900 dark:text-slate-200 dark:hover:bg-navy-800;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition duration-150 hover:border-sky-300 hover:bg-sky-50/50 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-600/30 disabled:cursor-not-allowed disabled:opacity-50 dark:border-navy-700 dark:bg-navy-900 dark:text-slate-200 dark:hover:bg-navy-800;
   }
 
   .lab-btn-accent {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition duration-150 hover:bg-emerald-600 hover:shadow active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-emerald-500/40 disabled:cursor-not-allowed disabled:opacity-50;
   }
 }
 

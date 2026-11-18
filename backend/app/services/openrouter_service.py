@@ -1,59 +1,49 @@
-"""OpenRouter AI integration service with strict server-side credentials and deterministic fallback."""
+"""OpenRouter AI integration service with strict server-side credentials and 48-experiment fallback."""
 
 from __future__ import annotations
 
 import json
+import time
 from typing import Any
 
 import httpx
 
 from app.core.config import Settings, get_settings
 from app.core.security import sanitize_text
+from app.services.conversation_service import (
+    answer_scientific_followup,
+    get_conversation_manager,
+)
+from app.services.local_llm_service import LocalLlmService, get_local_llm_service
+from app.services.result_explanation_service import (
+    REVIEWED_EXPLAINERS,
+    SUPPORTED_LANGUAGES,
+    _build_universal_explanation,
+    normalize_language,
+)
 
-LABXAI_SYSTEM_PROMPT = """You are LabXAI, an educational science laboratory tutor.
+LABXAI_SYSTEM_PROMPT = """You are LabXAI's scientific tutor covering Physics, Chemistry, Biology, and Mathematics across Basic, Intermediate, and Advanced levels.
 
-You explain scientific concepts accurately and in a student-friendly way.
+You receive structured context about the student's active virtual experiment, including its discipline, difficulty level, formulas, input parameters, and authoritative calculated simulation measurements.
 
-You receive structured information about the current experiment.
-
-Use the provided simulation measurements as the source of truth.
-
-Never fabricate measurements.
-
-Never change the simulation's calculated values.
-
-Explain:
-- What the student did.
-- What happened.
-- Why it happened.
-- The relevant scientific principle.
-- How the measurements support the principle.
-- Common mistakes.
-- A practical real-world application.
-
-Use clear language appropriate for students.
-
-When the student asks a question, answer using the experiment context.
-
-If information is missing, say so rather than inventing it.
-
-Do not claim that an experiment was performed physically. These are virtual simulations."""
+STRICT RULES:
+1. Always respond in the student's selected language specified in the Language Requirement. Do NOT switch to English unless the student explicitly requests it.
+2. Explain scientific and mathematical concepts accurately and naturally in the selected language.
+3. Retain standard scientific symbols, formulas, SI units, chemical symbols, variable names, and mathematical notation exactly.
+4. When a technical English term has no commonly accepted regional equivalent, retain the technical term and explain its meaning in the selected language.
+5. Use ONLY the supplied simulation parameters and calculated results as the sole source of scientific truth. NEVER fabricate or alter experimental measurements.
+6. Match the student's difficulty level (Basic = intuitive step-by-step; Intermediate = quantitative with graphs & formulas; Advanced = rigorous modeling & assumptions).
+7. In 'hint' mode, guide the student with a helpful nudge instead of revealing the final quiz answer immediately.
+8. In 'practice' mode, generate 2 targeted practice questions grounded in the current experiment.
+9. In 'simplify' mode, re-explain the concept using an everyday analogy.
+10. Clearly treat all activities as virtual simulations (never instruct dangerous physical or home chemistry experiments)."""
 
 LANGUAGE_INSTRUCTIONS: dict[str, str] = {
-    "en": "Respond in clear, student-friendly English.",
-    "kn": (
-        "Respond primarily in clear, accurate Kannada (ಕನ್ನಡ) suitable for science students. "
-        "Keep standard SI units, formulas, and numeric values exact."
-    ),
-    "hi": (
-        "Respond in clear, student-friendly Hindi (हिन्दी). Keep standard SI units and numeric values exact."
-    ),
-    "te": (
-        "Respond in clear, student-friendly Telugu (తెలుగు). Keep standard SI units and numeric values exact."
-    ),
-    "ta": (
-        "Respond in clear, student-friendly Tamil (தமிழ்). Keep standard SI units and numeric values exact."
-    ),
+    "en": "Always respond in clear, student-friendly English.",
+    "kn": "Always respond in natural, accurate Kannada (ಕನ್ನಡ). Do NOT switch to English unless requested. Keep standard scientific symbols, formulas, chemical symbols, SI units, and numeric values exact.",
+    "hi": "Always respond in natural, accurate Hindi (हिन्दी). Do NOT switch to English unless requested. Keep standard scientific symbols, formulas, chemical symbols, SI units, and numeric values exact.",
+    "te": "Always respond in natural, accurate Telugu (తెలుగు). Do NOT switch to English unless requested. Keep standard scientific symbols, formulas, chemical symbols, SI units, and numeric values exact.",
+    "ta": "Always respond in natural, accurate Tamil (தமிழ்). Do NOT switch to English unless requested. Keep standard scientific symbols, formulas, chemical symbols, SI units, and numeric values exact.",
 }
 
 SUGGESTED_QUESTIONS_BY_EXP: dict[str, dict[str, list[str]]] = {
@@ -108,13 +98,62 @@ SUGGESTED_QUESTIONS_BY_EXP: dict[str, dict[str, list[str]]] = {
 }
 
 
-def get_suggested_questions(experiment_id: str, language: str = "en") -> list[str]:
+SUGGESTED_QUESTIONS_GENERIC: dict[str, list[str]] = {
+    "en": [
+        "What scientific principle explains these calculated measurements?",
+        "How do the parameters affect the graph and formula output?",
+        "Where is this principle applied in everyday life?",
+    ],
+    "kn": [
+        "ಈ ಲೆಕ್ಕಹಾಕಿದ ಫಲಿತಾಂಶಗಳನ್ನು ಯಾವ ವೈಜ್ಞಾನಿಕ ತತ್ವ ವಿವರಿಸುತ್ತದೆ?",
+        "ನಿಯತಾಂಕಗಳನ್ನು ಬದಲಾಯಿಸಿದಾಗ ಗ್ರಾಫ್ ಮತ್ತು ಸೂತ್ರದ ಫಲಿತಾಂಶ ಹೇಗೆ ಬದಲಾಗುತ್ತದೆ?",
+        "ಈ ತತ್ವವನ್ನು ದೈನಂದಿನ ಜೀವನದಲ್ಲಿ ಎಲ್ಲಿ ಬಳಸಲಾಗುತ್ತದೆ?",
+    ],
+    "hi": [
+        "इन गणना किए गए परिणामों के पीछे कौन सा वैज्ञानिक सिद्धांत काम करता है?",
+        "नियतांक बदलने पर ग्राफ़ और सूत्र के परिणाम कैसे बदलते हैं?",
+        "दैनिक जीवन में इस सिद्धांत का उपयोग कहाँ किया जाता है?",
+    ],
+    "te": [
+        "ఈ లెక్కించిన ఫలితాలను ఏ శాస్త్రీయ సూత్రం వివరిస్తుంది?",
+        "పరామితులను మార్చినప్పుడు గ్రాఫ్ మరియు సూత్ర ఫలితం ఎలా మారుతుంది?",
+        "రోజువారీ జీవితంలో ఈ సూత్రాన్ని ఎక్కడ ఉపయోగిస్తారు?",
+    ],
+    "ta": [
+        "இந்த கணக்கிடப்பட்ட முடிவுகளை எந்த அறிவியல் கோட்பாடு விளக்குகிறது?",
+        "அளவுருக்களை மாற்றும்போது வரைபடம் மற்றும் சூத்திர மதிப்பு எவ்வாறு மாறுகிறது?",
+        "அன்றாட வாழ்க்கையில் இந்தக் கோட்பாடு எங்கு பயன்படுகிறது?",
+    ],
+}
+
+
+def get_suggested_questions(experiment_id: str, language: str = "en", discipline: str = "Physics") -> list[str]:
+    lang = normalize_language(language)
     exp_map = SUGGESTED_QUESTIONS_BY_EXP.get(experiment_id, {})
-    return exp_map.get(language) or exp_map.get("en") or [
-        "What scientific principle explains these measurements?",
-        "What common mistakes should I avoid in this experiment?",
-        "Where is this principle applied in real life?",
-    ]
+    if exp_map.get(lang):
+        return exp_map[lang]
+    if lang != "en":
+        return SUGGESTED_QUESTIONS_GENERIC[lang]
+    if exp_map.get("en"):
+        return exp_map["en"]
+    by_disc = {
+        "Chemistry": [
+            "How do my current parameters determine the calculated chemical results?",
+            "What model assumptions or limitations apply to this virtual chemistry experiment?",
+            "Give me a real-world industrial or biological application of this principle.",
+        ],
+        "Biology": [
+            "How do the simulated measurements illustrate this biological mechanism?",
+            "How does this simplified visual model differ from a real living system?",
+            "What common misconceptions should I avoid in this biology topic?",
+        ],
+        "Mathematics": [
+            "Walk me step by step through the mathematical formula behind these outputs.",
+            "What special edge cases or singularities exist for these parameters?",
+            "Give me a practice problem similar to my current simulation setup.",
+        ],
+    }
+    return by_disc.get(discipline, SUGGESTED_QUESTIONS_GENERIC["en"])
 
 
 def build_deterministic_fallback(
@@ -124,61 +163,21 @@ def build_deterministic_fallback(
     measurements: dict[str, Any],
     language: str,
     question: str | None = None,
+    *,
+    discipline: str = "Physics",
+    difficulty: str = "Basic",
+    formulas: list[str] | None = None,
+    common_mistakes: list[str] | None = None,
+    applications: list[str] | None = None,
+    mode: str = "explain",
 ) -> str:
     """Generate a scientifically accurate fallback explanation from authoritative measurements."""
-    lang = language if language in ("en", "kn") else "en"
+    lang = language if language in ("en", "kn", "hi", "te", "ta") else "en"
 
-    if experiment_id == "ohms-law":
-        v = measurements.get("voltage", parameters.get("voltage", "N/A"))
-        r = measurements.get("resistance", parameters.get("resistance", "N/A"))
-        i = measurements.get("current", "N/A")
-        p = measurements.get("power", "N/A")
-        if lang == "kn":
-            return (
-                f"**{experiment_title} — ಸಿಮ್ಯುಲೇಶನ್ ವಿಶ್ಲೇಷಣೆ (ಆಫ್‌ಲೈನ್ ಮಾರ್ಗದರ್ಶಿ)**\n\n"
-                f"- **ನೀವು ಏನು ಮಾಡಿದ್ದೀರಿ:** ವರ್ಚುವಲ್ ಮಂಡಲದಲ್ಲಿ ವೋಲ್ಟೇಜ್ V = {v} V ಮತ್ತು ರೋಧ R = {r} Ω ನಿಗದಿಪಡಿಸಿದ್ದೀರಿ.\n"
-                f"- **ಏನು ನಡೆಯಿತು:** ಲೆಕ್ಕಹಾಕಿದ ವಿದ್ಯುತ್ ಪ್ರವಾಹ I = {i} A ಮತ್ತು ವ್ಯಯವಾದ ಶಕ್ತಿ P = {p} W.\n"
-                f"- **ವೈಜ್ಞಾನಿಕ ತತ್ವ (ಓಮ್ ನಿಯಮ):** ಸ್ಥಿರ ತಾಪಮಾನದಲ್ಲಿ V = I × R. ವೋಲ್ಟೇಜ್ ಹೆಚ್ಚಾದಂತೆ ಪ್ರವಾಹ ಹೆಚ್ಚಾಗುತ್ತದೆ ಮತ್ತು ರೋಧ ಹೆಚ್ಚಾದಂತೆ ಪ್ರವಾಹ ಕಡಿಮೆಯಾಗುತ್ತದೆ.\n"
-                f"- **ಸಾಮಾನ್ಯ ತಪ್ಪುಗಳು:** ರೋಧವನ್ನು 0 Ω ಇಡುವುದು (ಶಾರ್ಟ್ ಸರ್ಕ್ಯೂಟ್) ಅಥವಾ ಆಮ್ಮೀಟರ್ ಅನ್ನು ಸಮಾನಾಂತರವಾಗಿ ಜೋಡಿಸುವುದು.\n"
-                f"- **ನೈಜ ಜೀವನದ ಬಳಕೆ:** ಎಲ್‌ಇಡಿ (LED) ಸುರಕ್ಷತಾ ರೋಧಕಗಳು, ವಿದ್ಯುತ್ ಹೀಟರ್‌ಗಳು ಮತ್ತು ಮನೆಯ ಸರ್ಕ್ಯೂಟ್ ವಿನ್ಯಾಸ."
-            )
-        q_prefix = f"Regarding your question (\"{question}\"):\n\n" if question else ""
-        return (
-            f"{q_prefix}**{experiment_title} — Deterministic Lab Analysis**\n\n"
-            f"- **What you did:** In this virtual circuit simulation, you set supply voltage **V = {v} V** and resistance **R = {r} Ω**.\n"
-            f"- **What happened:** The circuit produced an electric current of **I = {i} A** and dissipated **P = {p} W** of power.\n"
-            f"- **Why & Scientific Principle:** According to Ohm's Law (`V = I × R`), current rises linearly with voltage and decreases inversely with resistance. Your measured values confirm `I = {v} / {r} = {i} A` and `P = V × I = {p} W`.\n"
-            f"- **Common mistakes:** Confusing series vs. parallel meter connections (ammeters go in series; voltmeters in parallel) or forgetting that zero resistance causes an idealized short circuit.\n"
-            f"- **Real-world application:** Choosing current-limiting resistors for LEDs, sizing fuses, and designing safe household electrical circuits."
-        )
-
-    if experiment_id == "simple-pendulum":
-        l_val = measurements.get("length", parameters.get("length", "N/A"))
-        g_val = measurements.get("gravity", parameters.get("gravity", "N/A"))
-        t_val = measurements.get("time_period", "N/A")
-        f_val = measurements.get("frequency", "N/A")
-        ang = measurements.get("initial_angle", parameters.get("initial_angle", "N/A"))
-        dev = measurements.get("large_angle_deviation_percent", 0)
-        if lang == "kn":
-            return (
-                f"**{experiment_title} — ಸಿಮ್ಯುಲೇಶನ್ ವಿಶ್ಲೇಷಣೆ (ಆಫ್‌ಲೈನ್ ಮಾರ್ಗದರ್ಶಿ)**\n\n"
-                f"- **ನೀವು ಏನು ಮಾಡಿದ್ದೀರಿ:** ಉದ್ದ L = {l_val} m, ಗುರುತ್ವ g = {g_val} m/s² ಮತ್ತು ಕೋನ θ₀ = {ang}° ಹೊಂದಿಸಿದ್ದೀರಿ.\n"
-                f"- **ಏನು ನಡೆಯಿತು:** ಸಣ್ಣ-ಕೋನ ಆವರ್ತನ ಕಾಲ T = {t_val} s ಮತ್ತು ಆವೃತ್ತಿ f = {f_val} Hz (ದೊಡ್ಡ ಕೋನ ವ್ಯತ್ಯಾಸ: {dev}%).\n"
-                f"- **ವೈಜ್ಞಾನಿಕ ತತ್ವ:** T = 2π√(L/g). ಆವರ್ತನ ಕಾಲವು ಉದ್ದದ ವರ್ಗಮೂಲಕ್ಕೆ ನೇರಾನುಪಾತದಲ್ಲಿಯೂ, ಗುರುತ್ವದ ವರ್ಗಮೂಲಕ್ಕೆ ವಿಲೋಮಾನುಪಾತದಲ್ಲಿಯೂ ಇರುತ್ತದೆ.\n"
-                f"- **ಸಾಮಾನ್ಯ ತಪ್ಪುಗಳು:** ಬಾಬ್‌ನ ದ್ರವ್ಯರಾಶಿ ಆವರ್ತನ ಕಾಲವನ್ನು ಬದಲಿಸುತ್ತದೆ ಎಂದು ಭಾವಿಸುವುದು.\n"
-                f"- **ನೈಜ ಜೀವನದ ಬಳಕೆ:** ಲೋಲಕ ಗಡಿಯಾರಗಳು, ಭೂಕಂಪಮಾಪಕಗಳು (seismometers) ಮತ್ತು ಸ್ಥಳೀಯ ಗುರುತ್ವ ಅಳತೆ."
-            )
-        q_prefix = f"Regarding your question (\"{question}\"):\n\n" if question else ""
-        return (
-            f"{q_prefix}**{experiment_title} — Deterministic Lab Analysis**\n\n"
-            f"- **What you did:** You configured a virtual pendulum with length **L = {l_val} m**, gravity **g = {g_val} m/s²**, and initial release angle **θ₀ = {ang}°**.\n"
-            f"- **What happened:** The small-angle period is **T = {t_val} s** (frequency **f = {f_val} Hz**), with a large-angle deviation of **{dev}%**.\n"
-            f"- **Why & Scientific Principle:** Under `T = 2π√(L/g)`, gravity provides the restoring torque proportional to `sin(θ) ≈ θ`. Increasing length slows oscillations by `√L`, while stronger gravity speeds them up.\n"
-            f"- **Common mistakes:** Assuming heavier bobs swing faster (mass cancels out) or applying `T = 2π√(L/g)` blindly at very large angles without noting the correction.\n"
-            f"- **Real-world application:** Mechanical pendulum clocks, metronomes, and measuring local gravitational acceleration."
-        )
-
-    if experiment_id == "projectile-motion":
+    # Use the unified 7-section localized explanation generator for Ohm's Law, Simple Pendulum,
+    # and all 48 multidisciplinary labs across EN, KN, HI, TA, and TE.
+    # Keep projectile-motion and convex-lens bespoke EN/KN blocks for backwards compatibility.
+    if experiment_id == "projectile-motion" and lang in ("en", "kn"):
         u_val = measurements.get("initial_velocity", parameters.get("initial_velocity", "N/A"))
         ang = measurements.get("launch_angle", parameters.get("launch_angle", "N/A"))
         g_val = measurements.get("gravity", parameters.get("gravity", "N/A"))
@@ -204,7 +203,7 @@ def build_deterministic_fallback(
             f"- **Real-world application:** Sports trajectory analysis, fountain nozzle engineering, and rescue drop planning."
         )
 
-    if experiment_id == "convex-lens":
+    if experiment_id == "convex-lens" and lang in ("en", "kn"):
         u_val = measurements.get("object_distance_cartesian", parameters.get("object_distance", "N/A"))
         f_val = measurements.get("focal_length", parameters.get("focal_length", "N/A"))
         v_val = "∞ (Infinity)" if measurements.get("is_at_infinity") else measurements.get("image_distance", "N/A")
@@ -229,19 +228,130 @@ def build_deterministic_fallback(
             f"- **Real-world application:** Camera optics, magnifying glasses, microscopes, projectors, and eyeglasses for hyperopia."
         )
 
+    # Rich, measurement-grounded, full-sentence 5-language fallback for ALL 48 experiments
+    if experiment_id in REVIEWED_EXPLAINERS:
+        exp_block = REVIEWED_EXPLAINERS[experiment_id](parameters, measurements, lang)
+    else:
+        fmt_list = [
+            {"key": k, "label": k, "value": v, "unit": ""}
+            for k, v in measurements.items()
+            if v is not None and not isinstance(v, (list, dict))
+        ]
+        exp_block = _build_universal_explanation(
+            experiment_title=experiment_title,
+            discipline=discipline,
+            difficulty=difficulty,
+            parameters=parameters,
+            formatted_measurements=fmt_list,
+            formulas=formulas or [],
+            conclusion_en=f"Calculated results for {experiment_title}.",
+            applications_en=applications or [],
+            lang=lang,
+        )
+
+    headers = {
+        "en": (
+            "Multilingual Lab Explanation",
+            "1. Experiment Result Summary",
+            "2. What the Calculated Values Mean",
+            "3. Scientific / Mathematical Principle",
+            "4. Step-by-Step Interpretation",
+            "5. Real-World Application",
+            "6. Common Mistakes",
+            "7. Final Conclusion",
+        ),
+        "kn": (
+            "ಸಿಮ್ಯುಲೇಶನ್ ಫಲಿತಾಂಶ ವಿವರಣೆ (ಆಫ್‌ಲೈನ್ ಮಾರ್ಗದರ್ಶಿ)",
+            "1. ಪ್ರಯೋಗದ ಫಲಿತಾಂಶ ಸಾರಾಂಶ",
+            "2. ಲೆಕ್ಕಹಾಕಿದ ಮೌಲ್ಯಗಳ ಅರ್ಥ",
+            "3. ವೈಜ್ಞಾನಿಕ / ಗಣಿತ ತತ್ವ",
+            "4. ಹಂತ-ಹಂತದ ವಿವರಣೆ",
+            "5. ನೈಜ ಜೀವನದ ಬಳಕೆ",
+            "6. ಸಾಮಾನ್ಯ ತಪ್ಪುಗಳು",
+            "7. ಅಂತಿಮ ತೀರ್ಮಾನ",
+        ),
+        "hi": (
+            "सिमुलेशन परिणाम व्याख्या",
+            "1. प्रयोग परिणाम सारांश",
+            "2. गणना किए गए मानों का अर्थ",
+            "3. वैज्ञानिक / गणितीय सिद्धांत",
+            "4. चरण-दर-चरण व्याख्या",
+            "5. व्यावहारिक उपयोग",
+            "6. सामान्य त्रुटियाँ",
+            "7. अंतिम निष्कर्ष",
+        ),
+        "te": (
+            "సిమ్యులేషన్ ఫలిత వివరణ",
+            "1. ప్రయోగ ఫలిత సారాంశం",
+            "2. లెక్కించిన విలువల అర్థం",
+            "3. శాస్త్రీయ / గణిత సూత్రం",
+            "4. దశలవారీ విశ్లేషణ",
+            "5. నిజ జీవిత వినియోగం",
+            "6. సాధారణ తప్పులు",
+            "7. తుది నిర్ధారణ",
+        ),
+        "ta": (
+            "உருவகப்படுத்துதல் முடிவு விளக்கம்",
+            "1. சோதனை முடிவுச் சுருக்கம்",
+            "2. கணக்கிடப்பட்ட மதிப்புகளின் பொருள்",
+            "3. அறிவியல் / கணித கோட்பாடு",
+            "4. படிப்படியான விளக்கம்",
+            "5. நடைமுறை பயன்பாடு",
+            "6. பொதுவான தவறுகள்",
+            "7. இறுதி முடிவுரை",
+        ),
+    }[lang]
+
+    mode_notes = {
+        "hint": {
+            "en": "Tutor Hint: Change one slider at a time and check how it affects the governing equation above.",
+            "kn": "ಸುಳಿವು: ಒಂದೇ ನಿಯತಾಂಕವನ್ನು ಬದಲಿಸಿ, ಮೇಲಿನ ಸೂತ್ರದ ಮೇಲೆ ಅದರ ಪರಿಣಾಮವನ್ನು ಗಮನಿಸಿ.",
+            "hi": "संकेत: एक समय में एक ही मान बदलें और देखें कि ऊपर दिए सूत्र का परिणाम कैसे बदलता है।",
+            "te": "సూచన: ఒకేసారి ఒక పరామితిని మార్చి, పై సూత్రంపై దాని ప్రభావాన్ని పరిశీలించండి.",
+            "ta": "குறிப்பு: ஒரு நேரத்தில் ஒரு அளவுருவை மட்டும் மாற்றி, மேலுள்ள சூத்திரத்தின் மாற்றத்தைக் காண்க.",
+        },
+        "practice": {
+            "en": "Practice: Double one input parameter and predict the new output using the formula before checking.",
+            "kn": "ಅಭ್ಯಾಸ: ಒಂದು ನಿಯತಾಂಕವನ್ನು ದ್ವಿಗುಣಗೊಳಿಸಿ, ಸೂತ್ರದಿಂದ ಹೊಸ ಫಲಿತಾಂಶವನ್ನು ಊಹಿಸಿ ನಂತರ ಪರಿಶೀಲಿಸಿ.",
+            "hi": "अभ्यास: किसी एक इनपुट मान को दोगुना करें और सूत्र से नए परिणाम का अनुमान लगाकर जांचें।",
+            "te": "అభ్యాసం: ఒక ఇన్‌పుట్ పరామితిని రెట్టింపు చేసి, సూత్రం ద్వారా కొత్త ఫలితాన్ని అంచనా వేసి తనిఖీ చేయండి.",
+            "ta": "பயிற்சி: ஒரு உள்ளீட்டு அளவுருவை இரட்டிப்பாக்கி, சூத்திரத்தின் மூலம் புதிய விடையை கணித்து சரிபார்க்கவும்.",
+        },
+        "simplify": {
+            "en": "Simple Intuition: Focus on how one input pushes the measured output up or down step by step.",
+            "kn": "ಸರಳ ಅರ್ಥೈಸುವಿಕೆ: ಒಂದು ನಿಯತಾಂಕ ಬದಲಾದಾಗ ಫಲಿತಾಂಶ ಹೇಗೆ ಏರುತ್ತದೆ ಅಥವಾ ಇಳಿಯುತ್ತದೆ ಎಂಬುದನ್ನು ಹಂತ ಹಂತವಾಗಿ ಗಮನಿಸಿ.",
+            "hi": "सरल समझ: ध्यान दें कि एक मान बदलने पर मापा गया परिणाम सीधे कैसे बढ़ता या घटता है।",
+            "te": "సులభ అవగాహన: ఒక ఇన్‌పుట్ మారినప్పుడు కొలిచిన ఫలితం ఎలా పెరుగుతుందో లేదా తగ్గుతుందో గమనించండి.",
+            "ta": "எளிய புரிதல்: ஒரு உள்ளீடு மாறும்போது கணக்கிடப்பட்ட மதிப்பு எவ்வாறு உயர்கிறது அல்லது குறைகிறது என்பதைப் பாருங்கள்.",
+        },
+    }
+    mode_suffix = f"\n- **{mode_notes[mode][lang]}**" if mode in mode_notes else ""
+    q_prefix = f"Q: \"{question}\"\n\n" if question else ""
+    mistakes_text = exp_block.get("common_mistakes") or (common_mistakes[0] if common_mistakes else "")
+
     return (
-        f"**{experiment_title} — Deterministic Lab Analysis**\n\n"
-        f"Parameters: `{json.dumps(parameters)}`\n"
-        f"Computed measurements: `{json.dumps(measurements)}`\n\n"
-        "The live AI tutor is currently in offline deterministic fallback mode."
+        f"{q_prefix}**{experiment_title} — {headers[0]}**\n\n"
+        f"- **{headers[1]}:** {exp_block['summary']}\n"
+        f"- **{headers[2]}:** {exp_block['interpretation']}\n"
+        f"- **{headers[3]}:** {exp_block['formula_explanation']}\n"
+        f"- **{headers[4]}:** {exp_block['observation']}\n"
+        f"- **{headers[5]}:** {exp_block['real_world_application']}\n"
+        f"- **{headers[6]}:** {mistakes_text}\n"
+        f"- **{headers[7]}:** {exp_block['conclusion']}"
+        f"{mode_suffix}"
     )
 
 
 class OpenRouterService:
-    """Async OpenRouter client with explicit error handling and deterministic fallback."""
+    """3-Tier AI Tutor router: OpenRouter -> Lightweight Local LLM -> Deterministic Scientific Tutor."""
 
-    def __init__(self, settings: Settings | None = None):
+    def __init__(
+        self,
+        settings: Settings | None = None,
+        local_llm: LocalLlmService | None = None,
+    ):
         self.settings = settings or get_settings()
+        self.local_llm = local_llm or get_local_llm_service(self.settings)
 
     def _build_context_block(
         self,
@@ -251,14 +361,34 @@ class OpenRouterService:
         parameters: dict[str, Any],
         measurements: dict[str, Any],
         language: str,
+        *,
+        discipline: str = "Physics",
+        difficulty: str = "Basic",
+        formulas: list[str] | None = None,
+        mode: str = "explain",
+        values_changed: bool = False,
     ) -> str:
-        lang_hint = LANGUAGE_INSTRUCTIONS.get(language, LANGUAGE_INSTRUCTIONS["en"])
+        lang = normalize_language(language)
+        lang_name = SUPPORTED_LANGUAGES.get(lang, "English")
+        lang_hint = LANGUAGE_INSTRUCTIONS.get(lang, LANGUAGE_INSTRUCTIONS["en"])
+        update_note = (
+            "IMPORTANT: The student changed the simulation parameters since the previous message. "
+            "Treat ONLY the measurements below as current; do NOT cite older values as current.\n"
+            if values_changed
+            else ""
+        )
         return (
+            f"Target Response Language: {lang_name} ({lang})\n"
+            f"Discipline: {discipline}\n"
+            f"Difficulty Level: {difficulty}\n"
+            f"Tutor Mode: {mode}\n"
             f"Experiment ID: {experiment_id}\n"
             f"Experiment Title: {experiment_title}\n"
+            f"Key Formulas: {json.dumps(formulas or [], ensure_ascii=False)}\n"
             f"Learning Objectives: {json.dumps(objectives, ensure_ascii=False)}\n"
-            f"Student Input Parameters: {json.dumps(parameters, ensure_ascii=False)}\n"
-            f"Authoritative Simulation Measurements (DO NOT ALTER): "
+            f"{update_note}"
+            f"Current Student Input Parameters: {json.dumps(parameters, ensure_ascii=False)}\n"
+            f"Latest Authoritative Simulation Measurements (DO NOT ALTER): "
             f"{json.dumps(measurements, ensure_ascii=False)}\n"
             f"Language Requirement: {lang_hint}"
         )
@@ -275,138 +405,230 @@ class OpenRouterService:
         question: str | None = None,
         history: list[dict[str, str]] | None = None,
         client: httpx.AsyncClient | None = None,
+        discipline: str = "Physics",
+        difficulty: str = "Basic",
+        formulas: list[str] | None = None,
+        common_mistakes: list[str] | None = None,
+        applications: list[str] | None = None,
+        mode: str = "explain",
+        conversation_id: str | None = None,
     ) -> dict[str, Any]:
-        """Call OpenRouter chat completions or gracefully return deterministic fallback."""
-        suggested = get_suggested_questions(experiment_id, language)
-
-        if not self.settings.is_openrouter_configured:
-            fallback_reply = build_deterministic_fallback(
-                experiment_id, experiment_title, parameters, measurements, language, question
-            )
-            return {
-                "experiment_id": experiment_id,
-                "language": language,
-                "provider": "deterministic_fallback",
-                "model": self.settings.openrouter_model,
-                "fallback_used": True,
-                "error_notice": (
-                    "OpenRouter API key is not configured on the server. "
-                    "Showing deterministic scientific guidance based on your computed simulation data."
-                ),
-                "reply": fallback_reply,
-                "suggested_questions": suggested,
-            }
+        """Route across OpenRouter -> Lightweight Local LLM -> Deterministic Scientific Tutor."""
+        t0 = time.perf_counter()
+        lang = normalize_language(language)
+        suggested = get_suggested_questions(experiment_id, lang, discipline)
+        conv_mgr = get_conversation_manager()
+        session, values_changed = conv_mgr.get_or_update(
+            conversation_id=conversation_id,
+            experiment_id=experiment_id,
+            experiment_title=experiment_title,
+            subject=discipline,
+            difficulty=difficulty,
+            language=lang,
+            parameters=parameters,
+            measurements=measurements,
+            incoming_history=history,
+        )
 
         context_block = self._build_context_block(
-            experiment_id, experiment_title, objectives, parameters, measurements, language
+            experiment_id,
+            experiment_title,
+            objectives,
+            parameters,
+            measurements,
+            lang,
+            discipline=discipline,
+            difficulty=difficulty,
+            formulas=formulas,
+            mode=mode,
+            values_changed=values_changed,
         )
         messages: list[dict[str, str]] = [
             {"role": "system", "content": LABXAI_SYSTEM_PROMPT},
             {"role": "system", "content": context_block},
         ]
 
-        # Enforce conversation history cap
-        if history:
-            trimmed = history[-self.settings.max_chat_history :]
-            for item in trimmed:
-                role = item.get("role")
-                content = sanitize_text(str(item.get("content", "")), self.settings.max_message_chars)
-                if role in ("user", "assistant") and content:
-                    messages.append({"role": role, "content": content})
+        # Bounded rolling conversation history from session manager
+        active_history = session.messages[-self.settings.max_chat_history :]
+        for item in active_history:
+            role = item.get("role")
+            content = sanitize_text(str(item.get("content", "")), self.settings.max_message_chars)
+            if role in ("user", "assistant") and content:
+                messages.append({"role": role, "content": content})
 
-        if question:
-            clean_q = sanitize_text(question, self.settings.max_message_chars)
+        clean_q = sanitize_text(question, self.settings.max_message_chars) if question else None
+        if clean_q:
             messages.append({"role": "user", "content": clean_q})
         else:
-            messages.append(
-                {
-                    "role": "user",
-                    "content": (
-                        "Please explain my current virtual experiment results clearly using the "
-                        "provided simulation measurements."
-                    ),
-                }
-            )
-
-        url = f"{self.settings.openrouter_base_url.rstrip('/')}/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {self.settings.openrouter_api_key.strip()}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": self.settings.openrouter_site_url,
-            "X-Title": self.settings.app_name,
-        }
-        payload = {
-            "model": self.settings.openrouter_model,
-            "messages": messages,
-            "temperature": 0.4,
-            "max_tokens": 700,
-        }
+            mode_prompts = {
+                "explain": "Please explain my current virtual experiment results clearly using the provided simulation measurements.",
+                "hint": "Give me a helpful conceptual hint for understanding these results without spoiling quiz answers.",
+                "practice": "Generate 2 short practice problems grounded in my current experiment and parameters.",
+                "simplify": "Simplify this concept using an intuitive everyday analogy while referencing my simulation numbers.",
+            }
+            messages.append({"role": "user", "content": mode_prompts.get(mode, mode_prompts["explain"])})
 
         error_notice: str | None = None
-        try:
-            if client is not None:
-                response = await client.post(
-                    url,
-                    headers=headers,
-                    json=payload,
-                    timeout=self.settings.openrouter_timeout_seconds,
-                )
-            else:
-                async with httpx.AsyncClient(timeout=self.settings.openrouter_timeout_seconds) as async_client:
-                    response = await async_client.post(url, headers=headers, json=payload)
 
-            if response.status_code == 200:
-                data = response.json()
-                choices = data.get("choices")
-                if not isinstance(choices, list) or not choices:
-                    error_notice = "AI provider returned an unexpected empty response."
+        # ------------------------------------------------------------------
+        # TIER 1: OpenRouter Cloud Provider (when API key is configured)
+        # ------------------------------------------------------------------
+        if self.settings.is_openrouter_configured:
+            url = f"{self.settings.openrouter_base_url.rstrip('/')}/chat/completions"
+            headers = {
+                "Authorization": f"Bearer {self.settings.openrouter_api_key.strip()}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": self.settings.openrouter_site_url,
+                "X-Title": self.settings.app_name,
+            }
+            payload = {
+                "model": self.settings.openrouter_model,
+                "messages": messages,
+                "temperature": 0.4,
+                "max_tokens": 750,
+            }
+            try:
+                if client is not None:
+                    response = await client.post(
+                        url,
+                        headers=headers,
+                        json=payload,
+                        timeout=self.settings.openrouter_timeout_seconds,
+                    )
                 else:
-                    content = choices[0].get("message", {}).get("content", "")
-                    if isinstance(content, str) and content.strip():
-                        return {
-                            "experiment_id": experiment_id,
-                            "language": language,
-                            "provider": "openrouter",
-                            "model": data.get("model", self.settings.openrouter_model),
-                            "fallback_used": False,
-                            "error_notice": None,
-                            "reply": content.strip(),
-                            "suggested_questions": suggested,
-                        }
-                    error_notice = "AI provider returned an empty assistant message."
-            elif response.status_code == 401:
-                error_notice = "OpenRouter authentication failed. Please verify OPENROUTER_API_KEY in backend/.env."
-            elif response.status_code == 402:
-                error_notice = "OpenRouter account has insufficient credits for the configured model."
-            elif response.status_code in (400, 404):
-                error_notice = (
-                    f"Configured OpenRouter model '{self.settings.openrouter_model}' is unavailable "
-                    "or invalid. You can update OPENROUTER_MODEL in backend/.env."
-                )
-            elif response.status_code == 429:
-                error_notice = "OpenRouter rate limit reached. Showing deterministic explanation while you wait."
-            else:
-                error_notice = (
-                    f"OpenRouter service returned HTTP {response.status_code}. "
-                    "Showing deterministic lab guidance instead."
-                )
-        except httpx.TimeoutException:
-            error_notice = "OpenRouter request timed out. Showing deterministic lab guidance instead."
-        except httpx.RequestError:
-            error_notice = "Could not reach OpenRouter API (network error). Showing deterministic lab guidance."
-        except (ValueError, KeyError, TypeError):
-            error_notice = "Failed to parse OpenRouter API response. Showing deterministic lab guidance."
+                    async with httpx.AsyncClient(timeout=self.settings.openrouter_timeout_seconds) as async_client:
+                        response = await async_client.post(url, headers=headers, json=payload)
 
-        fallback_reply = build_deterministic_fallback(
-            experiment_id, experiment_title, parameters, measurements, language, question
+                if response.status_code == 200:
+                    data = response.json()
+                    choices = data.get("choices")
+                    if not isinstance(choices, list) or not choices:
+                        error_notice = "AI provider returned an unexpected empty response."
+                    else:
+                        content = choices[0].get("message", {}).get("content", "")
+                        if isinstance(content, str) and content.strip():
+                            reply_text = content.strip()
+                            turns = conv_mgr.append_turn(session.conversation_id, clean_q, reply_text)
+                            return {
+                                "success": True,
+                                "conversation_id": session.conversation_id,
+                                "conversation_turns": turns,
+                                "experiment_id": experiment_id,
+                                "language": lang,
+                                "provider": "openrouter",
+                                "model": data.get("model", self.settings.openrouter_model),
+                                "fallback_used": False,
+                                "error_notice": None,
+                                "reply": reply_text,
+                                "explanation": reply_text,
+                                "latency_ms": round((time.perf_counter() - t0) * 1000.0, 1),
+                                "local_model_status": None,
+                                "suggested_questions": suggested,
+                            }
+                        error_notice = "AI provider returned an empty assistant message."
+                elif response.status_code == 401:
+                    error_notice = "OpenRouter authentication failed. Please verify OPENROUTER_API_KEY in backend/.env."
+                elif response.status_code == 402:
+                    error_notice = "OpenRouter account has insufficient credits for the configured model."
+                elif response.status_code in (400, 404):
+                    error_notice = (
+                        f"Configured OpenRouter model '{self.settings.openrouter_model}' is unavailable "
+                        "or invalid. You can update OPENROUTER_MODEL in backend/.env."
+                    )
+                elif response.status_code == 429:
+                    error_notice = "OpenRouter rate limit reached. Showing deterministic explanation while you wait."
+                else:
+                    error_notice = (
+                        f"OpenRouter service returned HTTP {response.status_code}. "
+                        "Showing deterministic lab guidance instead."
+                    )
+            except httpx.TimeoutException:
+                error_notice = "OpenRouter request timed out. Showing deterministic lab guidance instead."
+            except httpx.RequestError:
+                error_notice = "Could not reach OpenRouter API (network error). Showing deterministic lab guidance."
+            except (ValueError, KeyError, TypeError):
+                error_notice = "Failed to parse OpenRouter API response. Showing deterministic lab guidance."
+
+        # ------------------------------------------------------------------
+        # TIER 2: Lightweight Local LLM (GGUF via llama-cpp-python or llama-server)
+        # Skip probing local server if a mocked OpenRouter test client was explicitly passed
+        # ------------------------------------------------------------------
+        local_status_label = "not_installed"
+        if client is None:
+            try:
+                local_res = await self.local_llm.generate_chat(messages=messages, max_tokens=512, temperature=0.4)
+                if local_res and local_res.get("reply"):
+                    reply_text = local_res["reply"]
+                    turns = conv_mgr.append_turn(session.conversation_id, clean_q, reply_text)
+                    return {
+                        "success": True,
+                        "conversation_id": session.conversation_id,
+                        "conversation_turns": turns,
+                        "experiment_id": experiment_id,
+                        "language": lang,
+                        "provider": "local",
+                        "model": local_res.get("model", self.settings.local_llm_model_name),
+                        "fallback_used": False,
+                        "error_notice": None,
+                        "reply": reply_text,
+                        "explanation": reply_text,
+                        "latency_ms": local_res.get("latency_ms"),
+                        "local_model_status": "ready",
+                        "suggested_questions": suggested,
+                    }
+            except Exception as exc:
+                local_status_label = f"error: {exc}"
+
+        # ------------------------------------------------------------------
+        # TIER 3: Deterministic Scientific Tutor (Honest Offline Mode + Intent Q&A)
+        # ------------------------------------------------------------------
+        if error_notice is None:
+            error_notice = (
+                "OpenRouter API key is not configured and no local GGUF model is installed. "
+                "Showing deterministic scientific guidance grounded in your live simulation data "
+                "(full free-form AI conversation requires OpenRouter or a local Q4 GGUF model)."
+            )
+
+        followup_reply = (
+            answer_scientific_followup(
+                experiment_id=experiment_id,
+                question=clean_q,
+                parameters=parameters,
+                measurements=measurements,
+                language=lang,
+                formulas=formulas,
+            )
+            if clean_q
+            else None
         )
+        fallback_reply = followup_reply or build_deterministic_fallback(
+            experiment_id,
+            experiment_title,
+            parameters,
+            measurements,
+            lang,
+            clean_q,
+            discipline=discipline,
+            difficulty=difficulty,
+            formulas=formulas,
+            common_mistakes=common_mistakes,
+            applications=applications,
+            mode=mode,
+        )
+        turns = conv_mgr.append_turn(session.conversation_id, clean_q, fallback_reply)
         return {
+            "success": True,
+            "conversation_id": session.conversation_id,
+            "conversation_turns": turns,
             "experiment_id": experiment_id,
-            "language": language,
+            "language": lang,
             "provider": "deterministic_fallback",
             "model": self.settings.openrouter_model,
             "fallback_used": True,
             "error_notice": error_notice,
             "reply": fallback_reply,
+            "explanation": fallback_reply,
+            "latency_ms": round((time.perf_counter() - t0) * 1000.0, 1),
+            "local_model_status": local_status_label,
             "suggested_questions": suggested,
         }

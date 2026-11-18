@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Activity, Award, FlaskConical, Printer } from 'lucide-react';
 import { labApi } from '../api/client';
 import { useApp } from '../context/AppContext';
+import { SUBJECT_COLORS } from '../i18n/translations';
 import { Badge, EmptyState, ErrorState, LoadingState } from '../components/StatusStates';
 
 export default function HistoryPage() {
@@ -54,11 +55,13 @@ export default function HistoryPage() {
       </div>
 
       {/* Teacher-friendly summary banner */}
-      <div className="lab-card mb-6 grid gap-4 p-5 sm:grid-cols-4">
+      <div className="lab-card mb-6 grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-5">
         <div>
           <p className="text-xs text-slate-500">Student</p>
           <p className="text-sm font-bold text-navy-900 dark:text-white">{progress.student.name}</p>
-          <p className="text-xs text-slate-500">{progress.student.grade_level}</p>
+          <p className="text-xs text-slate-500">
+            {progress.student.grade_level} · {progress.current_learning_level}
+          </p>
         </div>
         <div>
           <p className="text-xs text-slate-500">Experiments Completed</p>
@@ -78,7 +81,35 @@ export default function HistoryPage() {
             {progress.quizzes_attempted > 0 ? `${progress.average_quiz_score}%` : '—'}
           </p>
         </div>
+        <div>
+          <p className="text-xs text-slate-500">Time & Streak</p>
+          <p className="font-mono text-xl font-bold text-orange-600">
+            {progress.time_spent_minutes}m · {progress.learning_streak_days}d
+          </p>
+        </div>
       </div>
+
+      {/* Subject-wise Report Row */}
+      {progress.subject_progress?.length > 0 && (
+        <div className="mb-6 grid gap-3 sm:grid-cols-4">
+          {progress.subject_progress.map((sp) => {
+            const style = SUBJECT_COLORS[sp.subject] || SUBJECT_COLORS.Physics;
+            return (
+              <div key={sp.subject} className="lab-card p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-navy-900 dark:text-white">
+                    {sp.subject}
+                  </span>
+                  <Badge variant={style.badge}>{sp.completion_percentage}%</Badge>
+                </div>
+                <p className="mt-1.5 text-xs text-slate-500">
+                  {sp.completed_experiments}/{sp.total_experiments} labs · {sp.total_runs} runs
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="mb-6 flex flex-wrap gap-2">
@@ -112,53 +143,58 @@ export default function HistoryPage() {
           <EmptyState
             title={t('history.noRuns')}
             action={
-              <Link to="/library" className="lab-btn-primary text-xs">
+              <Link to="/subjects" className="lab-btn-primary text-xs">
                 Launch an Experiment
               </Link>
             }
           />
         ) : (
           <div className="space-y-4">
-            {history.simulation_runs.map((run) => (
-              <div key={run.id} className="lab-card p-5">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-navy-900 dark:text-white">
-                      {run.experiment_title}
-                    </h3>
-                    <Badge variant="emerald">Completed</Badge>
+            {history.simulation_runs.map((run) => {
+              const style = SUBJECT_COLORS[run.discipline] || SUBJECT_COLORS.Physics;
+              return (
+                <div key={run.id} className="lab-card p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant={style.badge}>{run.discipline || 'Physics'}</Badge>
+                      <Badge variant="default">{run.difficulty || 'Basic'}</Badge>
+                      <h3 className="text-base font-bold text-navy-900 dark:text-white">
+                        {run.experiment_title}
+                      </h3>
+                      <Badge variant="emerald">Completed</Badge>
+                    </div>
+                    <span className="font-mono text-xs text-slate-500">
+                      {new Date(run.created_at).toLocaleString()}
+                    </span>
                   </div>
-                  <span className="font-mono text-xs text-slate-500">
-                    {new Date(run.created_at).toLocaleString()}
-                  </span>
-                </div>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-lg bg-slate-50 p-3 dark:bg-navy-950">
-                    <p className="text-[11px] font-semibold uppercase text-slate-500">Parameters</p>
-                    <p className="mt-1 font-mono text-xs text-slate-800 dark:text-slate-200">
-                      {Object.entries(run.parameters)
-                        .map(([k, v]) => `${k}: ${v}`)
-                        .join(' · ')}
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-lg bg-slate-50 p-3 dark:bg-navy-950">
+                      <p className="text-[11px] font-semibold uppercase text-slate-500">Parameters</p>
+                      <p className="mt-1 font-mono text-xs text-slate-800 dark:text-slate-200">
+                        {Object.entries(run.parameters)
+                          .map(([k, v]) => `${k}: ${v}`)
+                          .join(' · ')}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-slate-50 p-3 dark:bg-navy-950">
+                      <p className="text-[11px] font-semibold uppercase text-slate-500">Computed Measurements</p>
+                      <p className="mt-1 font-mono text-xs text-blue-700 dark:text-blue-300">
+                        {Object.entries(run.measurements)
+                          .filter(([, v]) => v !== null && typeof v !== 'boolean' && typeof v !== 'object')
+                          .slice(0, 5)
+                          .map(([k, v]) => `${k}: ${v}`)
+                          .join(' · ')}
+                      </p>
+                    </div>
+                  </div>
+                  {run.notes && (
+                    <p className="mt-3 text-xs text-slate-600 dark:text-slate-300">
+                      <span className="font-semibold">Student Note:</span> {run.notes}
                     </p>
-                  </div>
-                  <div className="rounded-lg bg-slate-50 p-3 dark:bg-navy-950">
-                    <p className="text-[11px] font-semibold uppercase text-slate-500">Computed Measurements</p>
-                    <p className="mt-1 font-mono text-xs text-blue-700 dark:text-blue-300">
-                      {Object.entries(run.measurements)
-                        .filter(([, v]) => v !== null && typeof v !== 'boolean')
-                        .slice(0, 5)
-                        .map(([k, v]) => `${k}: ${v}`)
-                        .join(' · ')}
-                    </p>
-                  </div>
+                  )}
                 </div>
-                {run.notes && (
-                  <p className="mt-3 text-xs text-slate-600 dark:text-slate-300">
-                    <span className="font-semibold">Student Note:</span> {run.notes}
-                  </p>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         )
       )}
